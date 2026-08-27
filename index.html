@@ -1,907 +1,443 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AzureKodo — Cybersecurity Portfolio</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:     #080b10;
-      --bg2:    #0d1117;
-      --border: rgba(255,255,255,0.07);
-      --accent: #3b82f6;
-      --accent2:#60a5fa;
-      --green:  #22c55e;
-      --text:   #e2e8f0;
-      --muted:  #64748b;
-      --mono:   'Space Mono', monospace;
-      --sans:   'Space Grotesk', sans-serif;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ── NOISE ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
-
-    /* ── GRID BG ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── KEYFRAMES ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(-20px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-      50%     { opacity: 0.7; box-shadow: 0 0 0 6px rgba(34,197,94,0); }
-    }
-    @keyframes scanline {
-      0%   { top: -2px; }
-      100% { top: 100%; }
-    }
-    @keyframes typewriter {
-      from { width: 0; }
-      to   { width: 100%; }
-    }
-    @keyframes blink {
-      0%,100% { border-color: var(--accent); }
-      50%     { border-color: transparent; }
-    }
-    @keyframes glow {
-      0%,100% { text-shadow: 0 0 20px rgba(59,130,246,0.3); }
-      50%     { text-shadow: 0 0 40px rgba(59,130,246,0.6), 0 0 80px rgba(59,130,246,0.2); }
-    }
-    @keyframes borderPulse {
-      0%,100% { border-color: rgba(255,255,255,0.07); }
-      50%     { border-color: rgba(59,130,246,0.25); }
-    }
-
-    /* ── SCROLL REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(8,11,16,0.85);
-      backdrop-filter: blur(16px);
-      animation: fadeIn 0.8s ease forwards;
-    }
-
-    .nav-logo {
-      font-family: var(--mono);
-      font-size: 14px;
-      color: var(--accent2);
-      letter-spacing: 2px;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-logo:hover { color: #fff; }
-
-    .nav-links { display: flex; gap: 32px; }
-    .nav-links a {
-      font-size: 13px;
-      color: var(--muted);
-      text-decoration: none;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: color 0.2s;
-      position: relative;
-    }
-    .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -4px; left: 0;
-      width: 0; height: 1px;
-      background: var(--accent);
-      transition: width 0.3s ease;
-    }
-    .nav-links a:hover { color: var(--text); }
-    .nav-links a:hover::after { width: 100%; }
-
-    /* ── SCANLINE ── */
-    .scanline {
-      position: fixed;
-      left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
-      animation: scanline 8s linear infinite;
-      pointer-events: none;
-      z-index: 99;
-    }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 120px 40px 80px;
-      max-width: 1100px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--accent);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: slideRight 0.8s ease 0.2s both;
-    }
-
-    .hero-eyebrow::before {
-      content: '';
-      display: block;
-      width: 32px; height: 1px;
-      background: var(--accent);
-    }
-
-    .hero h1 {
-      font-size: clamp(48px, 8vw, 96px);
-      font-weight: 700;
-      line-height: 0.95;
-      letter-spacing: -2px;
-      margin-bottom: 32px;
-      animation: fadeUp 0.9s ease 0.3s both;
-    }
-
-    .hero h1 .name { color: var(--text); }
-    .hero h1 .handle {
-      color: var(--accent);
-      display: block;
-      animation: glow 4s ease-in-out infinite;
-    }
-
-    .hero-desc {
-      max-width: 560px;
-      font-size: 17px;
-      color: var(--muted);
-      line-height: 1.75;
-      margin-bottom: 48px;
-      animation: fadeUp 0.9s ease 0.5s both;
-    }
-    .hero-desc strong { color: var(--text); font-weight: 500; }
-
-    .hero-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 48px;
-      animation: fadeUp 0.9s ease 0.6s both;
-    }
-
-    .tag {
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: all 0.2s;
-    }
-    .tag:hover { border-color: rgba(59,130,246,0.3); color: var(--accent2); }
-
-    .tag.active {
-      border-color: rgba(59,130,246,0.4);
-      color: var(--accent2);
-      background: rgba(59,130,246,0.06);
-    }
-
-    .hero-cta {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      animation: fadeUp 0.9s ease 0.7s both;
-    }
-
-    .btn {
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 14px 28px;
-      border-radius: 4px;
-      text-decoration: none;
-      transition: all 0.25s;
-      display: inline-block;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.05);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .btn:hover::before { opacity: 1; }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      border: 1px solid var(--accent);
-      box-shadow: 0 0 20px rgba(59,130,246,0.2);
-    }
-    .btn-primary:hover {
-      background: var(--accent2);
-      box-shadow: 0 0 30px rgba(59,130,246,0.4);
-      transform: translateY(-1px);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover {
-      color: var(--text);
-      border-color: rgba(255,255,255,0.2);
-      transform: translateY(-1px);
-    }
-
-    /* ── SECTIONS ── */
-    section {
-      padding: 100px 40px;
-      max-width: 1100px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .section-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 700;
-      letter-spacing: -1px;
-      margin-bottom: 48px;
-      color: var(--text);
-    }
-
-    /* ── ORIGIN ── */
-    .origin { border-top: 1px solid var(--border); }
-
-    .origin-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: start;
-    }
-
-    .origin-text p {
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-    .origin-text p strong { color: var(--text); font-weight: 500; }
-
-    .origin-quote {
-      border-left: 2px solid var(--accent);
-      padding: 20px 24px;
-      background: rgba(59,130,246,0.04);
-      border-radius: 0 4px 4px 0;
-      margin-top: 32px;
-      animation: borderPulse 4s ease-in-out infinite;
-    }
-    .origin-quote p {
-      font-size: 15px;
-      color: var(--text);
-      font-style: italic;
-      margin: 0;
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .stat-card {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 24px;
-      background: var(--bg2);
-      transition: all 0.3s ease;
-      cursor: default;
-    }
-    .stat-card:hover {
-      border-color: rgba(59,130,246,0.3);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-
-    .stat-number {
-      font-family: var(--mono);
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--accent);
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* ── PROJECTS ── */
-    .projects { border-top: 1px solid var(--border); }
-
-    .project-card {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 32px;
-      background: var(--bg2);
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .project-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 3px; height: 100%;
-      background: linear-gradient(to bottom, var(--accent), var(--accent2));
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .project-card:hover {
-      border-color: rgba(59,130,246,0.3);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-    }
-    .project-card:hover::before { opacity: 1; }
-
-    .project-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .project-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .project-badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 4px 10px;
-      border-radius: 3px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .badge-live {
-      background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.3);
-      color: var(--green);
-      animation: borderPulse 3s ease-in-out infinite;
-    }
-
-    .project-desc {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 20px;
-    }
-
-    .project-stack {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .stack-tag {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 4px 10px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      transition: all 0.2s;
-    }
-    .stack-tag:hover {
-      border-color: rgba(59,130,246,0.3);
-      color: var(--accent2);
-    }
-
-    /* ── REPORTS ── */
-    .reports { border-top: 1px solid var(--border); }
-
-    .report-card {
-      display: flex;
-      gap: 24px;
-      padding: 24px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg2);
-      align-items: flex-start;
-      transition: all 0.3s ease;
-    }
-    .report-card:hover {
-      border-color: rgba(59,130,246,0.2);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-
-    .report-id {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--accent);
-      letter-spacing: 1px;
-      white-space: nowrap;
-      padding-top: 2px;
-      min-width: 100px;
-    }
-
-    .report-info h4 {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-
-    .report-info p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .report-severity {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 3px;
-      margin-left: auto;
-      white-space: nowrap;
-      align-self: flex-start;
-    }
-
-    .sev-high {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #f87171;
-      animation: borderPulse 3s ease-in-out infinite;
-    }
-
-    /* ── SKILLS ── */
-    .skills { border-top: 1px solid var(--border); }
-
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .skill-group {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 24px;
-      background: var(--bg2);
-      transition: all 0.3s ease;
-    }
-    .skill-group:hover {
-      border-color: rgba(59,130,246,0.2);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-
-    .skill-group-title {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--accent);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .skill-item {
-      font-size: 13px;
-      color: var(--muted);
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: color 0.2s, padding-left 0.2s;
-    }
-    .skill-item:last-child { border-bottom: none; }
-    .skill-item::before { content: '›'; color: var(--accent); font-size: 16px; }
-    .skill-item:hover { color: var(--text); padding-left: 6px; }
-
-    /* ── MISSION ── */
-    .mission {
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-
-    .mission-statement {
-      font-size: clamp(20px, 3vw, 32px);
-      font-weight: 600;
-      color: var(--text);
-      max-width: 700px;
-      margin: 0 auto 24px;
-      line-height: 1.4;
-      letter-spacing: -0.5px;
-      animation: glow 5s ease-in-out infinite;
-    }
-
-    .mission-sub {
-      color: var(--muted);
-      font-size: 15px;
-      max-width: 500px;
-      margin: 0 auto 48px;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1100px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-      gap: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .footer-left {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .footer-links { display: flex; gap: 24px; }
-    .footer-links a {
-      font-size: 13px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .footer-links a:hover { color: var(--text); }
-
-    .online-dot {
-      display: inline-block;
-      width: 8px; height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse-dot 2s infinite;
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 16px 20px; }
-      .nav-links { display: none; }
-      .hero { padding: 100px 20px 60px; }
-      section { padding: 60px 20px; }
-      .origin-grid { grid-template-columns: 1fr; gap: 40px; }
-      .skills-grid { grid-template-columns: 1fr; }
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      footer { padding: 30px 20px; }
-      .report-card { flex-direction: column; gap: 12px; }
-      .report-severity { margin-left: 0; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AzureKodo — Junior Cybersecurity Analyst</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg:#0a0e1a;
+    --panel:#101528;
+    --panel-2:#141a32;
+    --line:#2a3358;
+    --line-soft:#1c2340;
+    --ink:#e7ebf7;
+    --ink-dim:#9aa4c4;
+    --ink-faint:#616d94;
+    --silver:#6f92e8;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+    --sans:'Sora', -apple-system, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    line-height:1.65;
+  }
+  ::selection{background:var(--line); color:var(--ink);}
+  a{color:inherit;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important;}
+    .reveal.pending{opacity:1 !important; transform:none !important;}
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal{opacity:1; transform:none;}
+  .reveal.pending{opacity:0; transform:translateY(28px);}
+  .reveal{transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw; background:rgba(10,14,26,0.85); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line-soft);
+    transition:padding .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+  nav.scrolled{padding:13px 6vw; box-shadow:0 8px 24px rgba(0,0,0,0.35); background:rgba(10,14,26,0.96);}
+  .brand{font-family:var(--mono); font-size:14px; letter-spacing:1.5px; display:flex; align-items:center; gap:9px;}
+  .brand .bar{width:6px; height:14px; background:var(--silver);}
+  .nav-links{display:flex; gap:32px; font-family:var(--mono); font-size:12.5px;}
+  .nav-links a{color:var(--ink-dim); border-bottom:1px solid transparent; padding-bottom:3px; transition:.2s;}
+  .nav-links a:hover, .nav-links a.active{color:var(--silver); border-color:var(--silver);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:4px; transition:.2s;}
+  .nav-toggle:hover{border-color:var(--silver); color:var(--silver);}
+  @media (max-width:760px){
+    .nav-links{
+      display:none; position:absolute; top:100%; left:0; right:0;
+      background:var(--bg); flex-direction:column; gap:0; border-bottom:1px solid var(--line-soft);
+    }
+    .nav-links.open{display:flex;}
+    .nav-links a{padding:16px 6vw; border-bottom:1px solid var(--line-soft);}
+    .nav-toggle{display:block;}
+  }
+
+  section, header.hero{padding:110px 6vw 90px; border-bottom:1px solid var(--line-soft);}
+
+  .eyebrow{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:16px;}
+  h2{font-family:var(--sans); font-weight:700; font-size:clamp(1.5rem,3vw,2.1rem); margin-bottom:14px;}
+  .lede{color:var(--ink-dim); max-width:600px; margin-bottom:50px; font-size:.98rem;}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    min-height:92vh; display:flex; flex-direction:column; justify-content:center; position:relative;
+  }
+  .handle{font-family:var(--mono); font-size:13px; color:var(--ink-faint); margin-bottom:22px; letter-spacing:1px;}
+  .handle .live{color:var(--silver);}
+  header.hero h1{
+    font-family:var(--sans); font-weight:800; font-size:clamp(2.1rem,5.6vw,3.8rem);
+    line-height:1.08; max-width:820px; letter-spacing:-1px;
+  }
+  header.hero h1 .role{color:var(--silver); display:block;}
+  header.hero p.sub{margin-top:24px; max-width:560px; color:var(--ink-dim); font-size:1.02rem;}
+  .hero-tags{display:flex; gap:10px; flex-wrap:wrap; margin-top:32px;}
+  .tag{font-family:var(--mono); font-size:11.5px; padding:7px 13px; border:1px solid var(--line); border-radius:20px; color:var(--ink-dim); transition:.2s;}
+  .tag:hover{border-color:var(--silver); color:var(--silver); transform:translateY(-2px);}
+  .hero-cta{margin-top:38px; display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{font-family:var(--mono); font-size:13px; padding:12px 22px; border-radius:4px; border:1px solid var(--line); transition:.2s; background:transparent; color:var(--ink);}
+  .btn.primary{background:var(--silver); border-color:var(--silver); color:#0a0e1a; font-weight:700;}
+  .btn.primary:hover{opacity:.85;}
+  .btn.ghost:hover{border-color:var(--silver); color:var(--silver);}
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:60px;}
+  @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
+  .about-grid p{color:var(--ink-dim); margin-bottom:16px;}
+  .fact-list{border-top:1px solid var(--line-soft);}
+  .fact{display:flex; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12.5px; transition:.2s; padding-left:0;}
+  .fact:hover{background:var(--panel); padding-left:10px; padding-right:10px;}
+  .fact .k{color:var(--ink-faint);}
+  .fact .v{color:var(--ink); text-align:right;}
+
+  /* ---------- SKILLS ---------- */
+  .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;}
+  .skill-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
+  .skill-card:hover{border-color:var(--silver); transform:translateY(-3px);}
+  .skill-card.reveal:nth-child(1){transition-delay:.0s;}
+  .skill-card.reveal:nth-child(2){transition-delay:.06s;}
+  .skill-card.reveal:nth-child(3){transition-delay:.12s;}
+  .skill-card.reveal:nth-child(4){transition-delay:.18s;}
+  .skill-card.reveal:nth-child(5){transition-delay:.24s;}
+  .skill-card.reveal:nth-child(6){transition-delay:.30s;}
+  .skill-card .tag-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:1.5px; margin-bottom:10px; display:block;}
+  .skill-card h3{font-size:1rem; margin-bottom:10px; font-weight:600;}
+  .skill-card p{color:var(--ink-dim); font-size:.88rem;}
+  .note{margin-top:28px; font-family:var(--mono); font-size:12px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:14px;}
+
+  /* ---------- PROJECTS ---------- */
+  .project{
+    display:grid; grid-template-columns:120px 1fr; gap:28px;
+    padding:30px 0; border-bottom:1px solid var(--line-soft);
+    cursor:pointer; transition:background .2s, padding-left .2s, padding-right .2s, opacity .6s ease, transform .6s ease; border-radius:6px;
+  }
+  .project:hover{background:var(--panel); padding-left:16px; padding-right:16px;}
+  .project.reveal:nth-child(1){transition-delay:0s;}
+  .project.reveal:nth-child(2){transition-delay:.08s;}
+  .project.reveal:nth-child(3){transition-delay:.16s;}
+  .project:last-child{border-bottom:none;}
+  @media (max-width:640px){ .project{grid-template-columns:1fr; gap:10px;} }
+  .project .pid{font-family:var(--mono); font-size:12px; color:var(--ink-faint);}
+  .project .status{display:inline-block; margin-top:10px; font-family:var(--mono); font-size:10.5px; padding:4px 9px; border:1px solid var(--line); border-radius:3px; color:var(--ink-dim); transition:.2s;}
+  .project .status:hover{border-color:var(--silver); color:var(--silver);}
+  .project h3{font-size:1.15rem; margin-bottom:8px; font-weight:600; display:flex; align-items:center; gap:10px;}
+  .project h3 .chev{font-family:var(--mono); font-size:.85rem; color:var(--silver); transition:transform .25s;}
+  .project.open h3 .chev{transform:rotate(90deg);}
+  .project p{color:var(--ink-dim); font-size:.93rem; max-width:620px;}
+  .project .stack{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--ink-faint);}
+  .project .stack span{border:1px solid var(--line-soft); border-radius:3px; padding:3px 8px; transition:.2s;}
+  .project .stack span:hover{border-color:var(--silver); color:var(--silver);}
+  .project .more{max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .3s ease, margin .3s ease;}
+  .project.open .more{max-height:200px; opacity:1; margin-top:14px;}
+  .project .more{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:12px;}
+
+  /* ---------- COMMUNITY ---------- */
+  .community-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;}
+  .comm-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
+  .comm-card:hover{border-color:var(--silver); transform:translateY(-3px);}
+  .comm-card.reveal:nth-child(1){transition-delay:0s;}
+  .comm-card.reveal:nth-child(2){transition-delay:.08s;}
+  .comm-card.reveal:nth-child(3){transition-delay:.16s;}
+  .comm-card .badge{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px;
+    color:var(--silver); border:1px solid var(--line); padding:5px 11px; border-radius:20px; margin-bottom:14px;
+  }
+  .comm-card .badge .dot{width:6px; height:6px; border-radius:50%; background:var(--silver);}
+  .comm-card h3{font-size:1rem; margin-bottom:8px; font-weight:600;}
+  .comm-card p{color:var(--ink-dim); font-size:.9rem;}
+
+  /* ---------- CONTACT ---------- */
+  .contact-wrap{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px;}
+  .email-btn{
+    display:inline-flex; align-items:center; gap:12px; background:none; border:none;
+    font-family:var(--mono); font-size:1.2rem; color:var(--ink); border-bottom:1px solid var(--line);
+    padding-bottom:6px; transition:.2s; cursor:pointer;
+  }
+  .email-btn:hover{border-color:var(--silver); color:var(--silver);}
+  .email-btn .copy-hint{font-size:11px; color:var(--ink-faint); border:1px solid var(--line); border-radius:20px; padding:4px 10px; transition:.2s;}
+  .email-btn.copied .copy-hint{color:var(--silver); border-color:var(--silver);}
+  .socials{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px;}
+  .socials a{color:var(--ink-dim); border-bottom:1px solid transparent;}
+  .socials a:hover{color:var(--ink); border-color:var(--ink);}
+
+  footer{padding:34px 6vw; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+</style>
 </head>
 <body>
 
-  <div class="scanline"></div>
+<nav>
+  <div class="brand"><span class="bar"></span>AzureKodo</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#about">about</a>
+    <a href="#skills">skills</a>
+    <a href="#projects">projects</a>
+    <a href="#community">community</a>
+    <a href="#contact">contact</a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">menu</button>
+</nav>
 
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo">AzureKodo</a>
-    <div class="nav-links">
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <a href="#reports">Intel</a>
-      <a href="#skills">Skills</a>
-    </div>
-  </nav>
+<header class="hero" id="top">
+  <div class="handle">handle: <span class="live">AzureKodo</span> — Misamis Oriental, Philippines</div>
+  <h1>Amiel builds toward<br class="brhide"> a career defending<br class="brhide"> people who can't yet<br class="brhide"> <span class="role">defend themselves.</span></h1>
+  <p class="sub">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker. Self-taught through hands-on labs, CTF platforms, and real incident analysis — every skill listed here is one I can actually stand behind.</p>
+  <div class="hero-tags">
+    <span class="tag">SOC-track</span>
+    <span class="tag">Ethical Hacking</span>
+    <span class="tag">Threat Intel</span>
+    <span class="tag">Community Defense</span>
+  </div>
+  <div class="hero-cta">
+    <a href="#projects" class="btn primary">View projects</a>
+    <a href="#contact" class="btn ghost">Get in touch</a>
+  </div>
+</header>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-eyebrow">Cybersecurity Portfolio</div>
-    <h1>
-      <span class="name">AzureKodo</span>
-      <span class="handle">Aspiring SOC Analyst<br/>& Aspiring Ethical Hacker</span>
-    </h1>
-    <p class="hero-desc">
-      Self-taught cybersecurity practitioner from the <strong>Philippines</strong>.
-      Building tools, analyzing threats, and documenting the journey of
-      <strong>protecting people who can't protect themselves online.</strong>
-    </p>
-    <div class="hero-tags">
-      <span class="tag active">SOC Analysis</span>
-      <span class="tag active">Threat Intelligence</span>
-      <span class="tag active">Ethical Hacking</span>
-      <span class="tag">Phishing Analysis</span>
-      <span class="tag">IOC Extraction</span>
-      <span class="tag">Python Scripting</span>
+<section id="about">
+  <span class="eyebrow">// About</span>
+  <div class="about-grid">
+    <div>
+      <h2>Learning in the open, honestly.</h2>
+      <p>I'm building toward a SOC Analyst and Ethical Hacker career from the ground up — computer engineering background, no formal degree completed, and no paid bootcamp. Everything on this page came from free resources: guided labs, CTF platforms, and self-directed study.</p>
+      <p>I keep this portfolio deliberately honest. If I haven't actually worked with a tool or fully understood a concept, it doesn't get listed here — I'd rather show fewer things I can explain than a long list I can't.</p>
+      <p>The mission behind all of it is close to home: a phishing incident that hit a family member is what pushed me toward cybersecurity in the first place, and it's why I spend as much time on community awareness as I do on technical labs.</p>
     </div>
-    <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary">View Projects</a>
-      <a href="https://github.com/AzureKodo-alt" class="btn btn-ghost" target="_blank">GitHub →</a>
+    <div class="fact-list">
+      <div class="fact"><span class="k">ROLE</span><span class="v">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker</span></div>
+      <div class="fact"><span class="k">FOCUS</span><span class="v">SOC Analysis (primary) / Penetration Testing (parallel)</span></div>
+      <div class="fact"><span class="k">BASED IN</span><span class="v">Sugbongcogon, Misamis Oriental, PH</span></div>
+      <div class="fact"><span class="k">BACKGROUND</span><span class="v">Computer Engineering (incomplete)</span></div>
+      <div class="fact"><span class="k">APPROACH</span><span class="v">Free resources only — labs, CTFs, self-study</span></div>
+      <div class="fact"><span class="k">AFFILIATION</span><span class="v">OwlSec — community member</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <span class="eyebrow">// Skills &amp; Training</span>
+  <h2>What I've actually put hands on</h2>
+  <p class="lede">Represented at the level I can defend in an interview — not a wishlist.</p>
+  <div class="skill-grid">
+    <div class="skill-card">
+      <span class="tag-label">HANDS-ON LABS</span>
+      <h3>HackTheBox</h3>
+      <p>Cleared the Tier 0 Starting Point machines (Meow, Fawn, Dancing — Telnet, FTP, SMB) and am currently working through Connected.</p>
+    </div>
+    <div class="skill-card">
+      <span class="tag-label">SOC PATH</span>
+      <h3>TryHackMe</h3>
+      <p>Completed SOC-track exercises including phishing true-positive identification — separating real threats from noise.</p>
+    </div>
+    <div class="skill-card">
+      <span class="tag-label">FOUNDATIONS</span>
+      <h3>Cisco NetAcad</h3>
+      <p>Completed the Cybersecurity Analyst course, plus Python Essentials — building toward Python-based security automation like port scanners and log analyzers.</p>
+    </div>
+    <div class="skill-card">
+      <span class="tag-label">ENVIRONMENT</span>
+      <h3>Linux &amp; Toolchain</h3>
+      <p>Runs Kali Linux and Parrot OS in VMs on a Windows 11 desktop, with a dedicated Linux laptop on the roadmap.</p>
+    </div>
+    <div class="skill-card">
+      <span class="tag-label">ANALYSIS</span>
+      <h3>Threat Intelligence</h3>
+      <p>Real-world IOC analysis using VirusTotal cross-vendor correlation, written up in formal reporting.</p>
+    </div>
+    <div class="skill-card">
+      <span class="tag-label">IN PROGRESS</span>
+      <h3>Python for Security</h3>
+      <p>Learning Python with the explicit goal of writing my own automation tools, not just completing exercises.</p>
+    </div>
+  </div>
+  <p class="note">Certifications (CompTIA and similar) are on the radar but not yet planned in detail — this section will update honestly as that changes.</p>
+</section>
+
+<section id="projects">
+  <span class="eyebrow">// Projects</span>
+  <h2>Real work, real state</h2>
+  <p class="lede">Status is shown as-is, including what's currently broken.</p>
+
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-01</span>
+    <div>
+      <h3><span class="chev">▸</span> Threat Intelligence Report — TIR-2026-001</h3>
+      <p>Formal analysis of a compromised Filipino Facebook account being used to spread gambling scam URLs, including IOC extraction and cross-vendor correlation via VirusTotal.</p>
+      <div class="stack"><span>OSINT</span><span>VirusTotal</span><span>IOC Analysis</span></div>
+      <span class="status">Documented &amp; complete</span>
+      <div class="more">Report ID: TIR-2026-001 — filed as a standalone incident writeup, not a class exercise. Click to collapse.</div>
     </div>
   </div>
 
-  <!-- ORIGIN -->
-  <section class="origin" id="about">
-    <div class="section-label reveal">Origin</div>
-    <h2 class="section-title reveal reveal-delay-1">Why Cybersecurity</h2>
-    <div class="origin-grid">
-      <div class="origin-text reveal reveal-delay-2">
-        <p>
-          My entry into cybersecurity wasn't through a classroom — it was personal.
-          <strong>My mother's Facebook account was compromised in a phishing attack.</strong>
-          Instead of accepting the loss, I investigated, learned the recovery process,
-          and successfully retrieved her account. That moment changed everything.
-        </p>
-        <p>
-          Seeing how easily someone I love was targeted — not because she was careless,
-          but because <strong>nobody taught her what to look for</strong> — made me realize
-          how many ordinary Filipinos face the same vulnerability every day.
-          Scams, phishing, account takeovers, deepfakes — these aren't just technical problems.
-          They're human ones.
-        </p>
-        <p>
-          Since then I've been self-studying — no formal degree, no expensive certifications,
-          no shortcuts. Just consistent daily learning, real world practice, and a mission
-          that keeps me going even on the hard days.
-        </p>
-        <div class="origin-quote">
-          <p>"Protecting people who can't protect themselves online — that's not just a career goal. It's the reason I'm here."</p>
-        </div>
-      </div>
-      <div class="stat-grid reveal reveal-delay-3">
-        <div class="stat-card">
-          <span class="stat-number">2+</span>
-          <span class="stat-label">HTB Machines Pwned</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number">1</span>
-          <span class="stat-label">Threat Intel Reports</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number">100%</span>
-          <span class="stat-label">Self Taught</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number">PH</span>
-          <span class="stat-label">Based in Philippines</span>
-        </div>
-      </div>
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-02</span>
+    <div>
+      <h3><span class="chev">▸</span> AI-Powered Phishing Email Analyzer</h3>
+      <p>A web app that analyzes submitted emails for phishing indicators using the Claude API. Currently blocked by a CORS restriction — a serverless proxy fix is written and ready, pending API credits to deploy.</p>
+      <div class="stack"><span>React</span><span>Vite</span><span>Claude API</span></div>
+      <span class="status">In progress — fix pending</span>
+      <div class="more">Hosted on Vercel/GitHub under AzureKodo-alt. The serverless proxy is written — it's waiting on API credits, not code.</div>
     </div>
-  </section>
+  </div>
 
-  <!-- PROJECTS -->
-  <section class="projects" id="projects">
-    <div class="section-label reveal">Projects</div>
-    <h2 class="section-title reveal reveal-delay-1">Tools Built</h2>
-    <div class="project-card reveal reveal-delay-2">
-      <div class="project-header">
-        <span class="project-name">Phishing Email Analyzer</span>
-        <span class="project-badge badge-live">● Live</span>
-      </div>
-      <p class="project-desc">
-        AI-powered phishing email analysis tool built for SOC workflows.
-        Extracts IOCs — malicious domains, URLs, IP addresses — detects social engineering
-        tactics, assigns severity ratings, flags escalation requirements, and generates
-        structured SOC-style incident reports. Directly addresses the growing problem
-        of AI-generated phishing overwhelming Tier 1 analyst queues.
-      </p>
-      <div class="project-stack">
-        <span class="stack-tag">IOC Extraction</span>
-        <span class="stack-tag">SOC Reporting</span>
-        <span class="stack-tag">Phishing Analysis</span>
-        <span class="stack-tag">Threat Intelligence</span>
-        <span class="stack-tag">Social Engineering Detection</span>
-      </div>
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-03</span>
+    <div>
+      <h3><span class="chev">▸</span> Community Awareness Writing</h3>
+      <p>Ongoing posts on phishing, deepfakes, and AI overhype for a local Facebook audience, written in English, Bisaya-English, and Taglish to actually reach the people they're meant to protect.</p>
+      <div class="stack"><span>Public Writing</span><span>Local Outreach</span></div>
+      <span class="status">Ongoing</span>
+      <div class="more">Written to reach the audience directly — code-switching is deliberate, not an afterthought.</div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- THREAT INTEL -->
-  <section class="reports" id="reports">
-    <div class="section-label reveal">Threat Intelligence</div>
-    <h2 class="section-title reveal reveal-delay-1">Real World Analysis</h2>
-    <div class="report-card reveal reveal-delay-2">
-      <span class="report-id">TIR-2026-001</span>
-      <div class="report-info">
-        <h4>Filipino Facebook Account Compromise — Online Gambling Scam Campaign</h4>
-        <p>
-          Analysis of a compromised Filipino Facebook account used to distribute
-          phishing URLs disguised as online gambling promotions. Cross-vendor IOC
-          correlation across ESET and Fortinet. Documented attack chain, social
-          engineering tactics, and recommended response actions.
-        </p>
-      </div>
-      <span class="report-severity sev-high">HIGH</span>
+<section id="community">
+  <span class="eyebrow">// Community</span>
+  <h2>Defense doesn't stop at the screen</h2>
+  <p class="lede">Awareness work rooted in the same incident that started this path.</p>
+  <div class="community-grid">
+    <div class="comm-card">
+      <span class="badge"><span class="dot"></span>Member</span>
+      <h3>OwlSec</h3>
+      <p>Active member of the OwlSec community, engaging on cybersecurity topics alongside other learners and practitioners.</p>
     </div>
-  </section>
+    <div class="comm-card">
+      <span class="badge"><span class="dot"></span>Following</span>
+      <h3>Deep Web Konek (DWK)</h3>
+      <p>Follows DWK for grounded, Filipino-context cybersecurity discussion.</p>
+    </div>
+    <div class="comm-card">
+      <span class="badge"><span class="dot"></span>Track record</span>
+      <h3>Caught it before it spread</h3>
+      <p>Independently flagged phishing scams and a Ponzi scheme in his own social circle, and correctly categorized an impersonation case as spear phishing.</p>
+    </div>
+  </div>
+</section>
 
-  <!-- SKILLS -->
-  <section class="skills" id="skills">
-    <div class="section-label reveal">Capabilities</div>
-    <h2 class="section-title reveal reveal-delay-1">Skills & Tools</h2>
-    <div class="skills-grid">
-      <div class="skill-group reveal reveal-delay-1">
-        <div class="skill-group-title">SOC & Defense</div>
-        <div class="skill-item">Alert Triage & Analysis</div>
-        <div class="skill-item">IOC Identification</div>
-        <div class="skill-item">Incident Response</div>
-        <div class="skill-item">Phishing Analysis</div>
-        <div class="skill-item">Wireshark</div>
-        <div class="skill-item">LetsDefend</div>
-      </div>
-      <div class="skill-group reveal reveal-delay-2">
-        <div class="skill-group-title">Offensive Security</div>
-        <div class="skill-item">Nmap Reconnaissance</div>
-        <div class="skill-item">Metasploit Framework</div>
-        <div class="skill-item">HackTheBox</div>
-        <div class="skill-item">TryHackMe</div>
-        <div class="skill-item">Kali Linux</div>
-        <div class="skill-item">Parrot OS</div>
-      </div>
-      <div class="skill-group reveal reveal-delay-3">
-        <div class="skill-group-title">Development</div>
-        <div class="skill-item">Python (Learning)</div>
-        <div class="skill-item">HTML & CSS</div>
-        <div class="skill-item">JavaScript</div>
-        <div class="skill-item">GitHub</div>
-        <div class="skill-item">Linux CLI</div>
-        <div class="skill-item">VS Code</div>
-      </div>
+<section id="contact">
+  <span class="eyebrow">// Contact</span>
+  <div class="contact-wrap">
+    <div>
+      <h2 style="margin-bottom:10px;">Let's talk.</h2>
+      <button class="email-btn" id="emailBtn" data-email="azurekodo4@gmail.com">
+        azurekodo4@gmail.com
+        <span class="copy-hint" id="copyHint">click to copy</span>
+      </button>
     </div>
-  </section>
+    <div class="socials">
+      <a href="https://github.com/AzureKodo-alt" target="_blank" rel="noopener">GitHub</a>
+      <a href="#">LinkedIn</a>
+      <a href="https://discord.gg/TT3jpMsp2" target="_blank" rel="noopener">OwlSec Discord</a>
+    </div>
+  </div>
+</section>
 
-  <!-- MISSION -->
-  <section class="mission">
-    <div class="section-label reveal">Mission</div>
-    <p class="mission-statement reveal reveal-delay-1">
-      "Cybersecurity awareness isn't optional in a country where millions are targeted daily."
-    </p>
-    <p class="mission-sub reveal reveal-delay-2">
-      Building tools and spreading awareness to protect ordinary Filipinos
-      from phishing, scams, account compromise, and digital exploitation.
-    </p>
-    <div class="reveal reveal-delay-3">
-      <a href="https://github.com/AzureKodo-alt" class="btn btn-primary" target="_blank">
-        View GitHub Portfolio
-      </a>
-    </div>
-  </section>
+<footer>
+  <span>AzureKodo — built and maintained by hand</span>
+  <span id="year"></span>
+</footer>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-left">
-      <span class="online-dot"></span>
-      AzureKodo · Philippines · 2026
-    </div>
-    <div class="footer-links">
-      <a href="https://github.com/AzureKodo-alt" target="_blank">GitHub</a>
-      <a href="#projects">Projects</a>
-      <a href="#reports">Intel Reports</a>
-    </div>
-  </footer>
+<script>
+(function(){
+  "use strict";
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-  <script>
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+  /* mobile nav toggle */
+  var toggle = document.getElementById('navToggle');
+  var links = document.getElementById('navLinks');
+  toggle.addEventListener('click', function(){
+    var open = links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      links.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* scroll-spy active nav link + nav shrink shadow */
+  var navEl = document.querySelector('nav');
+  var sections = document.querySelectorAll('section[id]');
+  function onScroll(){
+    var pos = window.scrollY + 140;
+    sections.forEach(function(sec){
+      var top = sec.offsetTop, bottom = top + sec.offsetHeight;
+      var link = document.querySelector('.nav-links a[href="#'+sec.id+'"]');
+      if(link){
+        if(pos >= top && pos < bottom){ link.classList.add('active'); }
+        else { link.classList.remove('active'); }
+      }
+    });
+    if(window.scrollY > 30){ navEl.classList.add('scrolled'); }
+    else { navEl.classList.remove('scrolled'); }
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  /* scroll-triggered reveal animation */
+  var revealTargets = document.querySelectorAll(
+    'h2, .lede, .fact, .skill-card, .project, .comm-card, .note, .about-grid > div'
+  );
+  if('IntersectionObserver' in window){
+    revealTargets.forEach(function(el){ el.classList.add('reveal','pending'); });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.remove('pending');
+          io.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealTargets.forEach(function(el){ io.observe(el); });
+  }
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // Navbar active link highlight on scroll
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a');
-
-    window.addEventListener('scroll', () => {
-      let current = '';
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        if (window.scrollY >= sectionTop) current = section.getAttribute('id');
-      });
-      navLinks.forEach(link => {
-        link.style.color = link.getAttribute('href') === `#${current}`
-          ? 'var(--accent2)'
-          : '';
-      });
+  /* expandable project rows */
+  document.querySelectorAll('.project').forEach(function(p){
+    function toggle(){
+      var open = p.classList.toggle('open');
+      p.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    p.addEventListener('click', toggle);
+    p.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
     });
-  </script>
+  });
 
+  /* copy email to clipboard */
+  var emailBtn = document.getElementById('emailBtn');
+  var copyHint = document.getElementById('copyHint');
+  emailBtn.addEventListener('click', function(){
+    var email = emailBtn.getAttribute('data-email');
+    function done(){
+      copyHint.textContent = 'copied!';
+      emailBtn.classList.add('copied');
+      setTimeout(function(){
+        copyHint.textContent = 'click to copy';
+        emailBtn.classList.remove('copied');
+      }, 1800);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(email).then(done).catch(done);
+    } else {
+      done();
+    }
+  });
+
+})();
+</script>
 </body>
 </html>
