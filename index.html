@@ -10,7 +10,6 @@
   :root{
     --bg:#0a0e1a;
     --panel:#101528;
-    --panel-2:#141a32;
     --line:#2a3358;
     --line-soft:#1c2340;
     --ink:#e7ebf7;
@@ -23,23 +22,56 @@
 
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg); color:var(--ink); font-family:var(--sans);
-    line-height:1.65;
-  }
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.65; position:relative;}
   ::selection{background:var(--line); color:var(--ink);}
   a{color:inherit;}
+
+  /* SCANNER GRID BACKGROUND */
+  .scan-overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .scan-overlay .grid{
+    position:absolute; inset:-2px;
+    background-image:
+      linear-gradient(rgba(111,146,232,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(111,146,232,0.07) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 85%);
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 85%);
+  }
+  .scan-overlay .glow{
+    position:absolute; top:-20%; left:50%; transform:translateX(-50%);
+    width:900px; height:900px; max-width:140vw;
+    background:radial-gradient(circle, rgba(111,146,232,0.16), transparent 65%);
+  }
+  .scan-overlay .scan-line{
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, rgba(111,146,232,0.85), transparent);
+    box-shadow:0 0 18px 2px rgba(111,146,232,0.45);
+    animation:scanSweep 7s linear infinite;
+  }
+  @keyframes scanSweep{
+    0%{ top:-2%; opacity:0; }
+    8%{ opacity:1; }
+    92%{ opacity:1; }
+    100%{ top:102%; opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .scan-overlay .scan-line{ animation:none; opacity:0; }
+  }
+
+  nav, header.hero, section, footer{ position:relative; z-index:1; }
+
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important;}
     .reveal.pending{opacity:1 !important; transform:none !important;}
+    .scan-overlay .scan-line{ display:none; }
   }
 
-  /* ---------- SCROLL REVEAL ---------- */
-  .reveal{opacity:1; transform:none;}
-  .reveal.pending{opacity:0; transform:translateY(28px);}
   .reveal{transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.pending{opacity:0; transform:translateY(28px);}
 
-  /* ---------- NAV ---------- */
+  /* NAV */
   nav{
     position:fixed; top:0; left:0; right:0; z-index:100;
     display:flex; align-items:center; justify-content:space-between;
@@ -56,57 +88,48 @@
   .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:4px; transition:.2s;}
   .nav-toggle:hover{border-color:var(--silver); color:var(--silver);}
   @media (max-width:760px){
-    .nav-links{
-      display:none; position:absolute; top:100%; left:0; right:0;
-      background:var(--bg); flex-direction:column; gap:0; border-bottom:1px solid var(--line-soft);
-    }
+    .nav-links{display:none; position:absolute; top:100%; left:0; right:0; background:var(--bg); flex-direction:column; gap:0; border-bottom:1px solid var(--line-soft);}
     .nav-links.open{display:flex;}
     .nav-links a{padding:16px 6vw; border-bottom:1px solid var(--line-soft);}
     .nav-toggle{display:block;}
   }
 
   section, header.hero{padding:110px 6vw 90px; border-bottom:1px solid var(--line-soft);}
-
   .eyebrow{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:16px;}
-  h2{font-family:var(--sans); font-weight:700; font-size:clamp(1.5rem,3vw,2.1rem); margin-bottom:14px;}
+  h2{font-weight:700; font-size:clamp(1.5rem,3vw,2.1rem); margin-bottom:14px;}
   .lede{color:var(--ink-dim); max-width:600px; margin-bottom:50px; font-size:.98rem;}
 
-  /* ---------- HERO ---------- */
-  header.hero{
-    min-height:92vh; display:flex; flex-direction:column; justify-content:center; position:relative;
-  }
+  /* HERO */
+  header.hero{min-height:92vh; display:flex; flex-direction:column; justify-content:center; position:relative;}
   .handle{font-family:var(--mono); font-size:13px; color:var(--ink-faint); margin-bottom:22px; letter-spacing:1px;}
   .handle .live{color:var(--silver);}
-  header.hero h1{
-    font-family:var(--sans); font-weight:800; font-size:clamp(2.1rem,5.6vw,3.8rem);
-    line-height:1.08; max-width:820px; letter-spacing:-1px;
-  }
+  header.hero h1{font-weight:800; font-size:clamp(2.1rem,5.6vw,3.8rem); line-height:1.08; max-width:820px; letter-spacing:-1px;}
   header.hero h1 .role{color:var(--silver); display:block;}
   header.hero p.sub{margin-top:24px; max-width:560px; color:var(--ink-dim); font-size:1.02rem;}
   .hero-tags{display:flex; gap:10px; flex-wrap:wrap; margin-top:32px;}
-  .tag{font-family:var(--mono); font-size:11.5px; padding:7px 13px; border:1px solid var(--line); border-radius:20px; color:var(--ink-dim); transition:.2s;}
+  .tag{font-family:var(--mono); font-size:11.5px; padding:7px 13px; border:1px solid var(--line); border-radius:20px; color:var(--ink-dim); transition:.2s; display:inline-block;}
   .tag:hover{border-color:var(--silver); color:var(--silver); transform:translateY(-2px);}
   .hero-cta{margin-top:38px; display:flex; gap:14px; flex-wrap:wrap;}
-  .btn{font-family:var(--mono); font-size:13px; padding:12px 22px; border-radius:4px; border:1px solid var(--line); transition:.2s; background:transparent; color:var(--ink);}
+  .btn{font-family:var(--mono); font-size:13px; padding:12px 22px; border-radius:4px; border:1px solid var(--line); transition:.2s; background:transparent; color:var(--ink); display:inline-block;}
   .btn.primary{background:var(--silver); border-color:var(--silver); color:#0a0e1a; font-weight:700;}
   .btn.primary:hover{opacity:.85;}
   .btn.ghost:hover{border-color:var(--silver); color:var(--silver);}
 
-  /* ---------- ABOUT ---------- */
+  /* ABOUT */
   .about-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:60px;}
   @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
   .about-grid p{color:var(--ink-dim); margin-bottom:16px;}
   .fact-list{border-top:1px solid var(--line-soft);}
-  .fact{display:flex; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12.5px; transition:.2s; padding-left:0;}
+  .fact{display:flex; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12.5px; transition:.2s;}
   .fact:hover{background:var(--panel); padding-left:10px; padding-right:10px;}
   .fact .k{color:var(--ink-faint);}
   .fact .v{color:var(--ink); text-align:right;}
 
-  /* ---------- SKILLS ---------- */
+  /* SKILLS */
   .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;}
   .skill-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
   .skill-card:hover{border-color:var(--silver); transform:translateY(-3px);}
-  .skill-card.reveal:nth-child(1){transition-delay:.0s;}
+  .skill-card.reveal:nth-child(1){transition-delay:0s;}
   .skill-card.reveal:nth-child(2){transition-delay:.06s;}
   .skill-card.reveal:nth-child(3){transition-delay:.12s;}
   .skill-card.reveal:nth-child(4){transition-delay:.18s;}
@@ -117,12 +140,8 @@
   .skill-card p{color:var(--ink-dim); font-size:.88rem;}
   .note{margin-top:28px; font-family:var(--mono); font-size:12px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:14px;}
 
-  /* ---------- PROJECTS ---------- */
-  .project{
-    display:grid; grid-template-columns:120px 1fr; gap:28px;
-    padding:30px 0; border-bottom:1px solid var(--line-soft);
-    cursor:pointer; transition:background .2s, padding-left .2s, padding-right .2s, opacity .6s ease, transform .6s ease; border-radius:6px;
-  }
+  /* PROJECTS */
+  .project{display:grid; grid-template-columns:120px 1fr; gap:28px; padding:30px 0; border-bottom:1px solid var(--line-soft); cursor:pointer; transition:background .2s, padding-left .2s, padding-right .2s, opacity .6s ease, transform .6s ease; border-radius:6px;}
   .project:hover{background:var(--panel); padding-left:16px; padding-right:16px;}
   .project.reveal:nth-child(1){transition-delay:0s;}
   .project.reveal:nth-child(2){transition-delay:.08s;}
@@ -133,49 +152,79 @@
   .project .status{display:inline-block; margin-top:10px; font-family:var(--mono); font-size:10.5px; padding:4px 9px; border:1px solid var(--line); border-radius:3px; color:var(--ink-dim); transition:.2s;}
   .project .status:hover{border-color:var(--silver); color:var(--silver);}
   .project h3{font-size:1.15rem; margin-bottom:8px; font-weight:600; display:flex; align-items:center; gap:10px;}
-  .project h3 .chev{font-family:var(--mono); font-size:.85rem; color:var(--silver); transition:transform .25s;}
+  .project h3 .chev{font-family:var(--mono); font-size:.85rem; color:var(--silver); transition:transform .25s; display:inline-block;}
   .project.open h3 .chev{transform:rotate(90deg);}
   .project p{color:var(--ink-dim); font-size:.93rem; max-width:620px;}
   .project .stack{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--ink-faint);}
   .project .stack span{border:1px solid var(--line-soft); border-radius:3px; padding:3px 8px; transition:.2s;}
   .project .stack span:hover{border-color:var(--silver); color:var(--silver);}
-  .project .more{max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .3s ease, margin .3s ease;}
+  .project .more{max-height:0; overflow:hidden; opacity:0; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:12px; transition:max-height .35s ease, opacity .3s ease, margin .3s ease;}
   .project.open .more{max-height:200px; opacity:1; margin-top:14px;}
-  .project .more{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:12px;}
 
-  /* ---------- COMMUNITY ---------- */
+  /* COMMUNITY */
   .community-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;}
   .comm-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
   .comm-card:hover{border-color:var(--silver); transform:translateY(-3px);}
   .comm-card.reveal:nth-child(1){transition-delay:0s;}
   .comm-card.reveal:nth-child(2){transition-delay:.08s;}
   .comm-card.reveal:nth-child(3){transition-delay:.16s;}
-  .comm-card .badge{
-    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px;
-    color:var(--silver); border:1px solid var(--line); padding:5px 11px; border-radius:20px; margin-bottom:14px;
-  }
+  .comm-card .badge{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; color:var(--silver); border:1px solid var(--line); padding:5px 11px; border-radius:20px; margin-bottom:14px;}
   .comm-card .badge .dot{width:6px; height:6px; border-radius:50%; background:var(--silver);}
   .comm-card h3{font-size:1rem; margin-bottom:8px; font-weight:600;}
   .comm-card p{color:var(--ink-dim); font-size:.9rem;}
 
-  /* ---------- CONTACT ---------- */
+  /* CONTACT */
   .contact-wrap{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px;}
-  .email-btn{
-    display:inline-flex; align-items:center; gap:12px; background:none; border:none;
-    font-family:var(--mono); font-size:1.2rem; color:var(--ink); border-bottom:1px solid var(--line);
-    padding-bottom:6px; transition:.2s; cursor:pointer;
-  }
+  .email-btn{display:inline-flex; align-items:center; gap:12px; background:none; border:none; font-family:var(--mono); font-size:1.2rem; color:var(--ink); border-bottom:1px solid var(--line); padding-bottom:6px; transition:.2s; cursor:pointer;}
   .email-btn:hover{border-color:var(--silver); color:var(--silver);}
   .email-btn .copy-hint{font-size:11px; color:var(--ink-faint); border:1px solid var(--line); border-radius:20px; padding:4px 10px; transition:.2s;}
   .email-btn.copied .copy-hint{color:var(--silver); border-color:var(--silver);}
   .socials{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px;}
-  .socials a{color:var(--ink-dim); border-bottom:1px solid transparent;}
-  .socials a:hover{color:var(--ink); border-color:var(--ink);}
+  .socials a{color:var(--ink-dim); border-bottom:1px solid transparent; transition:.2s;}
+  .socials a:hover{color:var(--silver); border-color:var(--silver);}
 
   footer{padding:34px 6vw; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  /* PHISHING ANALYZER DEMO */
+  .demo-badge{display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; color:var(--silver); border:1px solid var(--line); border-radius:20px; padding:4px 12px; margin-bottom:18px;}
+  .demo-panel{background:var(--panel); border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; max-width:760px;}
+  .demo-tabs{display:flex; border-bottom:1px solid var(--line-soft);}
+  .demo-tab{flex:1; text-align:center; padding:16px; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; color:var(--ink-faint); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:.2s;}
+  .demo-tab:hover{color:var(--ink-dim);}
+  .demo-tab.active{color:var(--silver); border-bottom-color:var(--silver);}
+  .demo-body{padding:28px;}
+  .demo-view{display:none;}
+  .demo-view.active{display:block;}
+  .demo-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:.5px;}
+  .demo-sample-btn{font-family:var(--mono); font-size:11px; padding:7px 14px; border:1px solid var(--line); border-radius:4px; background:none; color:var(--ink-dim); cursor:pointer; transition:.2s;}
+  .demo-sample-btn:hover{border-color:var(--silver); color:var(--silver);}
+  #emailInput{
+    width:100%; min-height:200px; background:var(--bg); border:1px solid var(--line-soft); border-radius:6px;
+    padding:16px; color:var(--ink-dim); font-family:var(--mono); font-size:12.5px; line-height:1.7;
+    resize:vertical; transition:border-color .2s;
+  }
+  #emailInput:focus{outline:none; border-color:var(--silver);}
+  .run-btn{width:100%; margin-top:18px; padding:15px; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; background:var(--line-soft); border:1px solid var(--line); border-radius:6px; color:var(--ink-dim); cursor:pointer; transition:.2s;}
+  .run-btn:hover:not(:disabled){border-color:var(--silver); color:var(--silver); background:var(--panel);}
+  .run-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .demo-empty{text-align:center; padding:50px 20px; color:var(--ink-faint); font-family:var(--mono); font-size:12px;}
+  .risk-meter{display:flex; align-items:center; gap:16px; margin-bottom:24px; padding:16px; background:var(--bg); border:1px solid var(--line-soft); border-radius:6px;}
+  .risk-score{font-family:var(--mono); font-weight:700; font-size:1.8rem; color:var(--silver);}
+  .risk-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:1px;}
+  .finding{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12px;}
+  .finding:last-child{border-bottom:none;}
+  .finding .flag{color:var(--silver); flex-shrink:0;}
+  .finding .desc{color:var(--ink-dim);}
+  .demo-footnote{margin-top:22px; padding-top:16px; border-top:1px dashed var(--line-soft); font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); line-height:1.7;}
 </style>
 </head>
 <body>
+
+<div class="scan-overlay">
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div class="scan-line"></div>
+</div>
 
 <nav>
   <div class="brand"><span class="bar"></span>AzureKodo</div>
@@ -183,6 +232,7 @@
     <a href="#about">about</a>
     <a href="#skills">skills</a>
     <a href="#projects">projects</a>
+    <a href="#demo">demo</a>
     <a href="#community">community</a>
     <a href="#contact">contact</a>
   </div>
@@ -191,7 +241,7 @@
 
 <header class="hero" id="top">
   <div class="handle">handle: <span class="live">AzureKodo</span> — Misamis Oriental, Philippines</div>
-  <h1>Amiel builds toward<br class="brhide"> a career defending<br class="brhide"> people who can't yet<br class="brhide"> <span class="role">defend themselves.</span></h1>
+  <h1>Amiel builds toward a career defending people who can't yet <span class="role">defend themselves.</span></h1>
   <p class="sub">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker. Self-taught through hands-on labs, CTF platforms, and real incident analysis — every skill listed here is one I can actually stand behind.</p>
   <div class="hero-tags">
     <span class="tag">SOC-track</span>
@@ -230,36 +280,12 @@
   <h2>What I've actually put hands on</h2>
   <p class="lede">Represented at the level I can defend in an interview — not a wishlist.</p>
   <div class="skill-grid">
-    <div class="skill-card">
-      <span class="tag-label">HANDS-ON LABS</span>
-      <h3>HackTheBox</h3>
-      <p>Cleared the Tier 0 Starting Point machines (Meow, Fawn, Dancing — Telnet, FTP, SMB) and am currently working through Connected.</p>
-    </div>
-    <div class="skill-card">
-      <span class="tag-label">SOC PATH</span>
-      <h3>TryHackMe</h3>
-      <p>Completed SOC-track exercises including phishing true-positive identification — separating real threats from noise.</p>
-    </div>
-    <div class="skill-card">
-      <span class="tag-label">FOUNDATIONS</span>
-      <h3>Cisco NetAcad</h3>
-      <p>Completed the Cybersecurity Analyst course, plus Python Essentials — building toward Python-based security automation like port scanners and log analyzers.</p>
-    </div>
-    <div class="skill-card">
-      <span class="tag-label">ENVIRONMENT</span>
-      <h3>Linux &amp; Toolchain</h3>
-      <p>Runs Kali Linux and Parrot OS in VMs on a Windows 11 desktop, with a dedicated Linux laptop on the roadmap.</p>
-    </div>
-    <div class="skill-card">
-      <span class="tag-label">ANALYSIS</span>
-      <h3>Threat Intelligence</h3>
-      <p>Real-world IOC analysis using VirusTotal cross-vendor correlation, written up in formal reporting.</p>
-    </div>
-    <div class="skill-card">
-      <span class="tag-label">IN PROGRESS</span>
-      <h3>Python for Security</h3>
-      <p>Learning Python with the explicit goal of writing my own automation tools, not just completing exercises.</p>
-    </div>
+    <div class="skill-card"><span class="tag-label">HANDS-ON LABS</span><h3>HackTheBox</h3><p>Cleared the Tier 0 Starting Point machines (Meow, Fawn, Dancing — Telnet, FTP, SMB) and am currently working through Connected.</p></div>
+    <div class="skill-card"><span class="tag-label">SOC PATH</span><h3>TryHackMe</h3><p>Completed SOC-track exercises including phishing true-positive identification — separating real threats from noise.</p></div>
+    <div class="skill-card"><span class="tag-label">FOUNDATIONS</span><h3>Cisco NetAcad</h3><p>Completed the Cybersecurity Analyst course, plus Python Essentials — building toward Python-based security automation like port scanners and log analyzers.</p></div>
+    <div class="skill-card"><span class="tag-label">ENVIRONMENT</span><h3>Linux &amp; Toolchain</h3><p>Runs Kali Linux and Parrot OS in VMs on a Windows 11 desktop, with a dedicated Linux laptop on the roadmap.</p></div>
+    <div class="skill-card"><span class="tag-label">ANALYSIS</span><h3>Threat Intelligence</h3><p>Real-world IOC analysis using VirusTotal cross-vendor correlation, written up in formal reporting.</p></div>
+    <div class="skill-card"><span class="tag-label">IN PROGRESS</span><h3>Python for Security</h3><p>Learning Python with the explicit goal of writing my own automation tools, not just completing exercises.</p></div>
   </div>
   <p class="note">Certifications (CompTIA and similar) are on the radar but not yet planned in detail — this section will update honestly as that changes.</p>
 </section>
@@ -303,26 +329,51 @@
   </div>
 </section>
 
+<section id="demo">
+  <span class="eyebrow">// Live Demo</span>
+  <span class="demo-badge">SOC ANALYST TOOLKIT</span>
+  <h2>Phishing Analyzer — client-side preview</h2>
+  <p class="lede">The full version runs on the Claude API and is currently blocked by CORS (see P-02 above). This preview runs entirely in your browser using a simple keyword/pattern heuristic — no data leaves this page, and no API is called.</p>
+
+  <div class="demo-panel">
+    <div class="demo-tabs">
+      <button class="demo-tab active" id="tabInput">Email Input</button>
+      <button class="demo-tab" id="tabReport">Analysis Report</button>
+    </div>
+    <div class="demo-body">
+      <div class="demo-view active" id="viewInput">
+        <div class="demo-row">
+          <span>PASTE EMAIL CONTENT / HEADERS</span>
+          <button class="demo-sample-btn" id="loadSample">Load Sample</button>
+        </div>
+        <textarea id="emailInput" placeholder="Paste raw email content here...&#10;&#10;Include headers for best results:&#10;From: sender@domain.com&#10;Subject: ...&#10;Body content..."></textarea>
+        <button class="run-btn" id="runAnalysis">▸ Run Threat Analysis</button>
+      </div>
+      <div class="demo-view" id="viewReport">
+        <div id="reportEmpty" class="demo-empty">No analysis run yet. Paste an email and click "Run Threat Analysis."</div>
+        <div id="reportResults" style="display:none;">
+          <div class="risk-meter">
+            <div class="risk-score" id="riskScore">0%</div>
+            <div>
+              <div class="risk-label" id="riskLabel">RISK LEVEL</div>
+            </div>
+          </div>
+          <div id="findingsList"></div>
+          <div class="demo-footnote">Heuristic demo only — flags common phishing patterns (urgency language, mismatched links, credential requests, generic greetings). Not a substitute for the full AI-powered analyzer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="community">
   <span class="eyebrow">// Community</span>
   <h2>Defense doesn't stop at the screen</h2>
   <p class="lede">Awareness work rooted in the same incident that started this path.</p>
   <div class="community-grid">
-    <div class="comm-card">
-      <span class="badge"><span class="dot"></span>Member</span>
-      <h3>OwlSec</h3>
-      <p>Active member of the OwlSec community, engaging on cybersecurity topics alongside other learners and practitioners.</p>
-    </div>
-    <div class="comm-card">
-      <span class="badge"><span class="dot"></span>Following</span>
-      <h3>Deep Web Konek (DWK)</h3>
-      <p>Follows DWK for grounded, Filipino-context cybersecurity discussion.</p>
-    </div>
-    <div class="comm-card">
-      <span class="badge"><span class="dot"></span>Track record</span>
-      <h3>Caught it before it spread</h3>
-      <p>Independently flagged phishing scams and a Ponzi scheme in his own social circle, and correctly categorized an impersonation case as spear phishing.</p>
-    </div>
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Member</span><h3>OwlSec</h3><p>Active member of the OwlSec community, engaging on cybersecurity topics alongside other learners and practitioners.</p></div>
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Following</span><h3>Deep Web Konek (DWK)</h3><p>Follows DWK for grounded, Filipino-context cybersecurity discussion.</p></div>
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Track record</span><h3>Caught it before it spread</h3><p>Independently flagged phishing scams and a Ponzi scheme in his own social circle, and correctly categorized an impersonation case as spear phishing.</p></div>
   </div>
 </section>
 
@@ -354,7 +405,6 @@
   "use strict";
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  /* mobile nav toggle */
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
   toggle.addEventListener('click', function(){
@@ -368,7 +418,6 @@
     });
   });
 
-  /* scroll-spy active nav link + nav shrink shadow */
   var navEl = document.querySelector('nav');
   var sections = document.querySelectorAll('section[id]');
   function onScroll(){
@@ -387,10 +436,7 @@
   window.addEventListener('scroll', onScroll);
   onScroll();
 
-  /* scroll-triggered reveal animation */
-  var revealTargets = document.querySelectorAll(
-    'h2, .lede, .fact, .skill-card, .project, .comm-card, .note, .about-grid > div'
-  );
+  var revealTargets = document.querySelectorAll('h2, .lede, .fact, .skill-card, .project, .comm-card, .note, .about-grid > div, .demo-panel');
   if('IntersectionObserver' in window){
     revealTargets.forEach(function(el){ el.classList.add('reveal','pending'); });
     var io = new IntersectionObserver(function(entries){
@@ -404,19 +450,17 @@
     revealTargets.forEach(function(el){ io.observe(el); });
   }
 
-  /* expandable project rows */
   document.querySelectorAll('.project').forEach(function(p){
-    function toggle(){
+    function toggleProject(){
       var open = p.classList.toggle('open');
       p.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
-    p.addEventListener('click', toggle);
+    p.addEventListener('click', toggleProject);
     p.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleProject(); }
     });
   });
 
-  /* copy email to clipboard */
   var emailBtn = document.getElementById('emailBtn');
   var copyHint = document.getElementById('copyHint');
   emailBtn.addEventListener('click', function(){
@@ -436,6 +480,79 @@
     }
   });
 
+  /* Phishing Analyzer demo */
+  var tabInput = document.getElementById('tabInput');
+  var tabReport = document.getElementById('tabReport');
+  var viewInput = document.getElementById('viewInput');
+  var viewReport = document.getElementById('viewReport');
+  function showTab(which){
+    var toInput = which === 'input';
+    tabInput.classList.toggle('active', toInput);
+    tabReport.classList.toggle('active', !toInput);
+    viewInput.classList.toggle('active', toInput);
+    viewReport.classList.toggle('active', !toInput);
+  }
+  tabInput.addEventListener('click', function(){ showTab('input'); });
+  tabReport.addEventListener('click', function(){ showTab('report'); });
+
+  var sampleEmail = "From: security-alert@paypa1-verify.com\n" +
+    "Subject: URGENT: Your account will be suspended in 24 hours\n\n" +
+    "Dear Valued Customer,\n\n" +
+    "We detected unusual activity on your account. You must verify your identity immediately or your account will be permanently suspended.\n\n" +
+    "Click here to confirm your password and billing details: http://paypa1-secure-login.net/verify\n\n" +
+    "This is a time-sensitive matter. Act now to avoid losing access.\n\n" +
+    "Regards,\nAccount Security Team";
+
+  document.getElementById('loadSample').addEventListener('click', function(){
+    document.getElementById('emailInput').value = sampleEmail;
+  });
+
+  var checks = [
+    { test: /urgent|immediately|suspend|24 hours|act now|time-sensitive/i, flag: "Urgency language", desc: "Pressure tactics ('urgent', 'immediately', 'act now') are used to short-circuit careful reading." },
+    { test: /verify your (identity|password|account|billing)/i, flag: "Credential request", desc: "Asks the recipient to confirm sensitive details — legitimate services rarely ask this via email." },
+    { test: /paypa1|micros0ft|g00gle|amaz0n|[a-z]+-secure-login|[a-z]+-verify\.(net|com|xyz)/i, flag: "Suspicious domain pattern", desc: "Sender or link domain uses character substitution or an unofficial-looking suffix to mimic a trusted brand." },
+    { test: /dear (valued )?customer|dear user|dear member/i, flag: "Generic greeting", desc: "No personalized name — bulk phishing campaigns often can't address you by name." },
+    { test: /click here|confirm (your )?(password|details|account)/i, flag: "Suspicious call-to-action", desc: "Directs the reader to click through and submit credentials rather than log in independently." },
+    { test: /http:\/\//i, flag: "Unencrypted link", desc: "Link uses plain http:// instead of https:// — a common sign of a non-legitimate or spoofed page." }
+  ];
+
+  document.getElementById('runAnalysis').addEventListener('click', function(){
+    var text = document.getElementById('emailInput').value;
+    var findingsList = document.getElementById('findingsList');
+    var reportEmpty = document.getElementById('reportEmpty');
+    var reportResults = document.getElementById('reportResults');
+    findingsList.innerHTML = '';
+
+    if(!text.trim()){
+      showTab('report');
+      reportEmpty.style.display = 'block';
+      reportResults.style.display = 'none';
+      reportEmpty.textContent = 'Paste some email content first, then run the analysis.';
+      return;
+    }
+
+    var hits = checks.filter(function(c){ return c.test.test(text); });
+    var score = Math.min(100, hits.length * 17);
+
+    reportEmpty.style.display = 'none';
+    reportResults.style.display = 'block';
+
+    document.getElementById('riskScore').textContent = score + '%';
+    var label = score >= 60 ? 'HIGH RISK — likely phishing' : score >= 25 ? 'MODERATE RISK — review carefully' : 'LOW RISK — no strong indicators found';
+    document.getElementById('riskLabel').textContent = label;
+
+    if(hits.length === 0){
+      findingsList.innerHTML = '<div class="finding"><span class="flag">—</span><span class="desc">No common phishing patterns detected by this heuristic. Still exercise normal caution.</span></div>';
+    } else {
+      hits.forEach(function(h){
+        var row = document.createElement('div');
+        row.className = 'finding';
+        row.innerHTML = '<span class="flag">[' + h.flag + ']</span><span class="desc">' + h.desc + '</span>';
+        findingsList.appendChild(row);
+      });
+    }
+    showTab('report');
+  });
 })();
 </script>
 </body>
