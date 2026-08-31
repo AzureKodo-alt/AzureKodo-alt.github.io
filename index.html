@@ -4,332 +4,398 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AzureKodo — Junior Cybersecurity Analyst</title>
-
-<!-- TAILWIND (Play CDN — zero build step, compiles utility classes live in the browser,
-     including classes added dynamically by JS via its built-in MutationObserver).
-     Good for a single-file GitHub Pages site like this one; for a real production
-     app you'd switch to a compiled build (npm + tailwind.config.js + build step). -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          navybg: '#0a0e1a',
-          navypanel: '#101528',
-          navyline: '#2a3358',
-          navylinesoft: '#1c2340',
-          ink: '#e7ebf7',
-          inkdim: '#9aa4c4',
-          inkfaint: '#616d94',
-          silver: '#6f92e8',
-        },
-        fontFamily: {
-          mono: ['JetBrains Mono', 'Courier New', 'monospace'],
-          sans: ['Sora', '-apple-system', 'sans-serif'],
-        },
-        keyframes: {
-          scanSweep: {
-            '0%':   { top: '-2%',  opacity: '0' },
-            '8%':   { opacity: '1' },
-            '92%':  { opacity: '1' },
-            '100%': { top: '102%', opacity: '0' },
-          },
-        },
-        animation: {
-          scan: 'scanSweep 7s linear infinite',
-        },
-      }
-    }
-  }
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <style>
-  /* The only hand-written CSS left in the whole file — Tailwind has no
-     built-in utility for "smooth-scroll on anchor click" or text selection color. */
-  html{ scroll-behavior:smooth; }
-  ::selection{ background:#2a3358; color:#e7ebf7; }
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg:#0a0e1a;
+    --panel:#101528;
+    --line:#2a3358;
+    --line-soft:#1c2340;
+    --ink:#e7ebf7;
+    --ink-dim:#9aa4c4;
+    --ink-faint:#616d94;
+    --silver:#6f92e8;
+    --mono:'JetBrains Mono', 'Courier New', monospace;
+    --sans:'Sora', -apple-system, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.65; position:relative;}
+  ::selection{background:var(--line); color:var(--ink);}
+  a{color:inherit;}
+
+  /* SCANNER GRID BACKGROUND */
+  .scan-overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .scan-overlay .grid{
+    position:absolute; inset:-2px;
+    background-image:
+      linear-gradient(rgba(111,146,232,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(111,146,232,0.07) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 85%);
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 40%, transparent 85%);
+  }
+  .scan-overlay .glow{
+    position:absolute; top:-20%; left:50%; transform:translateX(-50%);
+    width:900px; height:900px; max-width:140vw;
+    background:radial-gradient(circle, rgba(111,146,232,0.16), transparent 65%);
+  }
+  .scan-overlay .scan-line{
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, rgba(111,146,232,0.85), transparent);
+    box-shadow:0 0 18px 2px rgba(111,146,232,0.45);
+    animation:scanSweep 7s linear infinite;
+  }
+  @keyframes scanSweep{
+    0%{ top:-2%; opacity:0; }
+    8%{ opacity:1; }
+    92%{ opacity:1; }
+    100%{ top:102%; opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .scan-overlay .scan-line{ animation:none; opacity:0; }
+  }
+
+  nav, header.hero, section, footer{ position:relative; z-index:1; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important;}
+    .reveal.pending{opacity:1 !important; transform:none !important;}
+    .scan-overlay .scan-line{ display:none; }
+  }
+
+  .reveal{transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.pending{opacity:0; transform:translateY(28px);}
+
+  /* NAV */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw; background:rgba(10,14,26,0.85); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line-soft);
+    transition:padding .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+  nav.scrolled{padding:13px 6vw; box-shadow:0 8px 24px rgba(0,0,0,0.35); background:rgba(10,14,26,0.96);}
+  .brand{font-family:var(--mono); font-size:14px; letter-spacing:1.5px; display:flex; align-items:center; gap:9px;}
+  .brand .bar{width:6px; height:14px; background:var(--silver);}
+  .nav-links{display:flex; gap:32px; font-family:var(--mono); font-size:12.5px;}
+  .nav-links a{color:var(--ink-dim); border-bottom:1px solid transparent; padding-bottom:3px; transition:.2s;}
+  .nav-links a:hover, .nav-links a.active{color:var(--silver); border-color:var(--silver);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--ink); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:4px; transition:.2s;}
+  .nav-toggle:hover{border-color:var(--silver); color:var(--silver);}
+  @media (max-width:760px){
+    .nav-links{display:none; position:absolute; top:100%; left:0; right:0; background:var(--bg); flex-direction:column; gap:0; border-bottom:1px solid var(--line-soft);}
+    .nav-links.open{display:flex;}
+    .nav-links a{padding:16px 6vw; border-bottom:1px solid var(--line-soft);}
+    .nav-toggle{display:block;}
+  }
+
+  section, header.hero{padding:110px 6vw 90px; border-bottom:1px solid var(--line-soft);}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:16px;}
+  h2{font-weight:700; font-size:clamp(1.5rem,3vw,2.1rem); margin-bottom:14px;}
+  .lede{color:var(--ink-dim); max-width:600px; margin-bottom:50px; font-size:.98rem;}
+
+  /* HERO */
+  header.hero{min-height:92vh; display:flex; flex-direction:column; justify-content:center; position:relative;}
+  .handle{font-family:var(--mono); font-size:13px; color:var(--ink-faint); margin-bottom:22px; letter-spacing:1px;}
+  .handle .live{color:var(--silver);}
+  header.hero h1{font-weight:800; font-size:clamp(2.1rem,5.6vw,3.8rem); line-height:1.08; max-width:820px; letter-spacing:-1px;}
+  header.hero h1 .role{color:var(--silver); display:block;}
+  header.hero p.sub{margin-top:24px; max-width:560px; color:var(--ink-dim); font-size:1.02rem;}
+  .hero-tags{display:flex; gap:10px; flex-wrap:wrap; margin-top:32px;}
+  .tag{font-family:var(--mono); font-size:11.5px; padding:7px 13px; border:1px solid var(--line); border-radius:20px; color:var(--ink-dim); transition:.2s; display:inline-block;}
+  .tag:hover{border-color:var(--silver); color:var(--silver); transform:translateY(-2px);}
+  .hero-cta{margin-top:38px; display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{font-family:var(--mono); font-size:13px; padding:12px 22px; border-radius:4px; border:1px solid var(--line); transition:.2s; background:transparent; color:var(--ink); display:inline-block;}
+  .btn.primary{background:var(--silver); border-color:var(--silver); color:#0a0e1a; font-weight:700;}
+  .btn.primary:hover{opacity:.85;}
+  .btn.ghost:hover{border-color:var(--silver); color:var(--silver);}
+
+  /* ABOUT */
+  .about-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:60px;}
+  @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
+  .about-grid p{color:var(--ink-dim); margin-bottom:16px;}
+  .fact-list{border-top:1px solid var(--line-soft);}
+  .fact{display:flex; justify-content:space-between; gap:20px; padding:16px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12.5px; transition:.2s;}
+  .fact:hover{background:var(--panel); padding-left:10px; padding-right:10px;}
+  .fact .k{color:var(--ink-faint);}
+  .fact .v{color:var(--ink); text-align:right;}
+
+  /* SKILLS */
+  .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px;}
+  .skill-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
+  .skill-card:hover{border-color:var(--silver); transform:translateY(-3px);}
+  .skill-card.reveal:nth-child(1){transition-delay:0s;}
+  .skill-card.reveal:nth-child(2){transition-delay:.06s;}
+  .skill-card.reveal:nth-child(3){transition-delay:.12s;}
+  .skill-card.reveal:nth-child(4){transition-delay:.18s;}
+  .skill-card.reveal:nth-child(5){transition-delay:.24s;}
+  .skill-card.reveal:nth-child(6){transition-delay:.30s;}
+  .skill-card .tag-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:1.5px; margin-bottom:10px; display:block;}
+  .skill-card h3{font-size:1rem; margin-bottom:10px; font-weight:600;}
+  .skill-card p{color:var(--ink-dim); font-size:.88rem;}
+  .note{margin-top:28px; font-family:var(--mono); font-size:12px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:14px;}
+
+  /* PROJECTS */
+  .project{display:grid; grid-template-columns:120px 1fr; gap:28px; padding:30px 0; border-bottom:1px solid var(--line-soft); cursor:pointer; transition:background .2s, padding-left .2s, padding-right .2s, opacity .6s ease, transform .6s ease; border-radius:6px;}
+  .project:hover{background:var(--panel); padding-left:16px; padding-right:16px;}
+  .project.reveal:nth-child(1){transition-delay:0s;}
+  .project.reveal:nth-child(2){transition-delay:.08s;}
+  .project.reveal:nth-child(3){transition-delay:.16s;}
+  .project:last-child{border-bottom:none;}
+  @media (max-width:640px){ .project{grid-template-columns:1fr; gap:10px;} }
+  .project .pid{font-family:var(--mono); font-size:12px; color:var(--ink-faint);}
+  .project .status{display:inline-block; margin-top:10px; font-family:var(--mono); font-size:10.5px; padding:4px 9px; border:1px solid var(--line); border-radius:3px; color:var(--ink-dim); transition:.2s;}
+  .project .status:hover{border-color:var(--silver); color:var(--silver);}
+  .project h3{font-size:1.15rem; margin-bottom:8px; font-weight:600; display:flex; align-items:center; gap:10px;}
+  .project h3 .chev{font-family:var(--mono); font-size:.85rem; color:var(--silver); transition:transform .25s; display:inline-block;}
+  .project.open h3 .chev{transform:rotate(90deg);}
+  .project p{color:var(--ink-dim); font-size:.93rem; max-width:620px;}
+  .project .stack{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--ink-faint);}
+  .project .stack span{border:1px solid var(--line-soft); border-radius:3px; padding:3px 8px; transition:.2s;}
+  .project .stack span:hover{border-color:var(--silver); color:var(--silver);}
+  .project .more{max-height:0; overflow:hidden; opacity:0; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); border-left:2px solid var(--line); padding-left:12px; transition:max-height .35s ease, opacity .3s ease, margin .3s ease;}
+  .project.open .more{max-height:200px; opacity:1; margin-top:14px;}
+
+  /* COMMUNITY */
+  .community-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;}
+  .comm-card{background:var(--panel); border:1px solid var(--line-soft); border-radius:6px; padding:24px; transition:border-color .2s, transform .2s, opacity .6s ease;}
+  .comm-card:hover{border-color:var(--silver); transform:translateY(-3px);}
+  .comm-card.reveal:nth-child(1){transition-delay:0s;}
+  .comm-card.reveal:nth-child(2){transition-delay:.08s;}
+  .comm-card.reveal:nth-child(3){transition-delay:.16s;}
+  .comm-card .badge{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; color:var(--silver); border:1px solid var(--line); padding:5px 11px; border-radius:20px; margin-bottom:14px;}
+  .comm-card .badge .dot{width:6px; height:6px; border-radius:50%; background:var(--silver);}
+  .comm-card h3{font-size:1rem; margin-bottom:8px; font-weight:600;}
+  .comm-card p{color:var(--ink-dim); font-size:.9rem;}
+
+  /* CONTACT */
+  .contact-wrap{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px;}
+  .email-btn{display:inline-flex; align-items:center; gap:12px; background:none; border:none; font-family:var(--mono); font-size:1.2rem; color:var(--ink); border-bottom:1px solid var(--line); padding-bottom:6px; transition:.2s; cursor:pointer;}
+  .email-btn:hover{border-color:var(--silver); color:var(--silver);}
+  .email-btn .copy-hint{font-size:11px; color:var(--ink-faint); border:1px solid var(--line); border-radius:20px; padding:4px 10px; transition:.2s;}
+  .email-btn.copied .copy-hint{color:var(--silver); border-color:var(--silver);}
+  .socials{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px;}
+  .socials a{color:var(--ink-dim); border-bottom:1px solid transparent; transition:.2s;}
+  .socials a:hover{color:var(--silver); border-color:var(--silver);}
+
+  footer{padding:34px 6vw; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  /* PHISHING ANALYZER DEMO */
+  .demo-badge{display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; color:var(--silver); border:1px solid var(--line); border-radius:20px; padding:4px 12px; margin-bottom:18px;}
+  .demo-panel{background:var(--panel); border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; max-width:760px;}
+  .demo-tabs{display:flex; border-bottom:1px solid var(--line-soft);}
+  .demo-tab{flex:1; text-align:center; padding:16px; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; color:var(--ink-faint); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:.2s;}
+  .demo-tab:hover{color:var(--ink-dim);}
+  .demo-tab.active{color:var(--silver); border-bottom-color:var(--silver);}
+  .demo-body{padding:28px;}
+  .demo-view{display:none;}
+  .demo-view.active{display:block;}
+  .demo-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); letter-spacing:.5px;}
+  .demo-sample-btn{font-family:var(--mono); font-size:11px; padding:7px 14px; border:1px solid var(--line); border-radius:4px; background:none; color:var(--ink-dim); cursor:pointer; transition:.2s;}
+  .demo-sample-btn:hover{border-color:var(--silver); color:var(--silver);}
+  #emailInput{
+    width:100%; min-height:200px; background:var(--bg); border:1px solid var(--line-soft); border-radius:6px;
+    padding:16px; color:var(--ink-dim); font-family:var(--mono); font-size:12.5px; line-height:1.7;
+    resize:vertical; transition:border-color .2s;
+  }
+  #emailInput:focus{outline:none; border-color:var(--silver);}
+  .run-btn{width:100%; margin-top:18px; padding:15px; font-family:var(--mono); font-size:12.5px; letter-spacing:1px; background:var(--line-soft); border:1px solid var(--line); border-radius:6px; color:var(--ink-dim); cursor:pointer; transition:.2s;}
+  .run-btn:hover:not(:disabled){border-color:var(--silver); color:var(--silver); background:var(--panel);}
+  .run-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .demo-empty{text-align:center; padding:50px 20px; color:var(--ink-faint); font-family:var(--mono); font-size:12px;}
+  .risk-meter{display:flex; align-items:center; gap:16px; margin-bottom:24px; padding:16px; background:var(--bg); border:1px solid var(--line-soft); border-radius:6px;}
+  .risk-score{font-family:var(--mono); font-weight:700; font-size:1.8rem; color:var(--silver);}
+  .risk-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); letter-spacing:1px;}
+  .finding{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft); font-family:var(--mono); font-size:12px;}
+  .finding:last-child{border-bottom:none;}
+  .finding .flag{color:var(--silver); flex-shrink:0;}
+  .finding .desc{color:var(--ink-dim);}
+  .demo-footnote{margin-top:22px; padding-top:16px; border-top:1px dashed var(--line-soft); font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); line-height:1.7;}
 </style>
 </head>
+<body>
 
-<body class="bg-navybg text-ink font-sans leading-relaxed relative">
-
-<!-- SCANNER BACKGROUND -->
-<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-  <div class="absolute -inset-0.5 bg-[linear-gradient(rgba(111,146,232,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(111,146,232,0.07)_1px,transparent_1px)] bg-[length:42px_42px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_30%,#000_40%,transparent_85%)]"></div>
-  <div class="absolute -top-1/5 left-1/2 -translate-x-1/2 w-[900px] h-[900px] max-w-[140vw] bg-[radial-gradient(circle,rgba(111,146,232,0.16),transparent_65%)]"></div>
-  <div class="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-silver/85 to-transparent shadow-[0_0_18px_2px_rgba(111,146,232,0.45)] animate-scan motion-reduce:hidden"></div>
+<div class="scan-overlay">
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div class="scan-line"></div>
 </div>
 
-<!-- NAV -->
-<nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-[6vw] py-5 bg-navybg/85 backdrop-blur-md border-b border-navylinesoft transition-all duration-300">
-  <div class="font-mono text-sm tracking-wider flex items-center gap-2">
-    <span class="w-1.5 h-3.5 bg-silver inline-block"></span>AzureKodo
+<nav>
+  <div class="brand"><span class="bar"></span>AzureKodo</div>
+  <div class="nav-links" id="navLinks">
+    <a href="#about">about</a>
+    <a href="#skills">skills</a>
+    <a href="#projects">projects</a>
+    <a href="#demo">demo</a>
+    <a href="#community">community</a>
+    <a href="#contact">contact</a>
   </div>
-
-  <div id="navLinks" class="hidden md:flex gap-8 font-mono text-[12.5px]">
-    <a href="#about" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">about</a>
-    <a href="#skills" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">skills</a>
-    <a href="#projects" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">projects</a>
-    <a href="#demo" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">demo</a>
-    <a href="#community" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">community</a>
-    <a href="#contact" class="nav-link text-inkdim hover:text-silver border-b border-transparent hover:border-silver pb-1 transition">contact</a>
-  </div>
-
-  <button id="navToggle" aria-label="Toggle menu" aria-expanded="false"
-    class="md:hidden font-mono text-xs px-3 py-2 border border-navyline rounded hover:border-silver hover:text-silver transition">
-    menu
-  </button>
-
-  <!-- mobile dropdown -->
-  <div id="navLinksMobile" class="hidden md:hidden absolute top-full left-0 right-0 bg-navybg border-b border-navylinesoft flex-col font-mono text-[12.5px]">
-    <a href="#about" class="mnav-link px-6 py-4 border-b border-navylinesoft text-inkdim">about</a>
-    <a href="#skills" class="mnav-link px-6 py-4 border-b border-navylinesoft text-inkdim">skills</a>
-    <a href="#projects" class="mnav-link px-6 py-4 border-b border-navylinesoft text-inkdim">projects</a>
-    <a href="#demo" class="mnav-link px-6 py-4 border-b border-navylinesoft text-inkdim">demo</a>
-    <a href="#community" class="mnav-link px-6 py-4 border-b border-navylinesoft text-inkdim">community</a>
-    <a href="#contact" class="mnav-link px-6 py-4 text-inkdim">contact</a>
-  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">menu</button>
 </nav>
 
-<!-- HERO -->
-<header id="top" class="relative z-10 min-h-[92vh] flex flex-col justify-center px-6 md:px-[6vw] pt-32 pb-20 border-b border-navylinesoft">
-  <div class="font-mono text-[13px] text-inkfaint mb-5 tracking-wide">
-    handle: <span class="text-silver">AzureKodo</span> — Misamis Oriental, Philippines
+<header class="hero" id="top">
+  <div class="handle">handle: <span class="live">AzureKodo</span> — Philippines</div>
+  <h1>Amiel builds toward a career defending people who can't yet <span class="role">defend themselves.</span></h1>
+  <p class="sub">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker. Self-taught through hands-on labs, CTF platforms, and real incident analysis — every skill listed here is one I can actually stand behind.</p>
+  <div class="hero-tags">
+    <span class="tag">SOC-track</span>
+    <span class="tag">Ethical Hacking</span>
+    <span class="tag">Threat Intel</span>
+    <span class="tag">Community Defense</span>
   </div>
-  <h1 class="font-extrabold text-4xl sm:text-5xl md:text-6xl leading-[1.08] max-w-4xl tracking-tight">
-    Amiel builds toward a career defending people who can't yet
-    <span class="text-silver block">defend themselves.</span>
-  </h1>
-  <p class="mt-6 max-w-xl text-inkdim text-base md:text-lg">
-    Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker. Self-taught through hands-on labs,
-    CTF platforms, and real incident analysis — every skill listed here is one I can actually stand behind.
-  </p>
-  <div class="flex flex-wrap gap-2.5 mt-8">
-    <span class="font-mono text-[11.5px] px-3.5 py-1.5 border border-navyline rounded-full text-inkdim hover:border-silver hover:text-silver hover:-translate-y-0.5 transition inline-block">SOC-track</span>
-    <span class="font-mono text-[11.5px] px-3.5 py-1.5 border border-navyline rounded-full text-inkdim hover:border-silver hover:text-silver hover:-translate-y-0.5 transition inline-block">Ethical Hacking</span>
-    <span class="font-mono text-[11.5px] px-3.5 py-1.5 border border-navyline rounded-full text-inkdim hover:border-silver hover:text-silver hover:-translate-y-0.5 transition inline-block">Threat Intel</span>
-    <span class="font-mono text-[11.5px] px-3.5 py-1.5 border border-navyline rounded-full text-inkdim hover:border-silver hover:text-silver hover:-translate-y-0.5 transition inline-block">Community Defense</span>
-  </div>
-  <div class="flex flex-wrap gap-3.5 mt-9">
-    <a href="#projects" class="font-mono text-[13px] px-5 py-3 rounded bg-silver text-navybg font-bold hover:opacity-85 transition">View projects</a>
-    <a href="#contact" class="font-mono text-[13px] px-5 py-3 rounded border border-navyline hover:border-silver hover:text-silver transition">Get in touch</a>
+  <div class="hero-cta">
+    <a href="#projects" class="btn primary">View projects</a>
+    <a href="#contact" class="btn ghost">Get in touch</a>
   </div>
 </header>
 
-<!-- ABOUT -->
-<section id="about" class="relative z-10 px-6 md:px-[6vw] py-24 border-b border-navylinesoft">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// About</span>
-  <div class="grid md:grid-cols-[1.1fr_0.9fr] gap-12 md:gap-16">
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">
-      <h2 class="font-bold text-2xl md:text-3xl mb-4">Learning in the open, honestly.</h2>
-      <p class="text-inkdim mb-4">I'm building toward a SOC Analyst and Ethical Hacker career from the ground up — computer engineering background, no formal degree completed, and no paid bootcamp. Everything on this page came from free resources: guided labs, CTF platforms, and self-directed study.</p>
-      <p class="text-inkdim mb-4">I keep this portfolio deliberately honest. If I haven't actually worked with a tool or fully understood a concept, it doesn't get listed here — I'd rather show fewer things I can explain than a long list I can't.</p>
-      <p class="text-inkdim">The mission behind all of it is close to home: a phishing incident that hit a family member is what pushed me toward cybersecurity in the first place, and it's why I spend as much time on community awareness as I do on technical labs.</p>
+<section id="about">
+  <span class="eyebrow">// About</span>
+  <div class="about-grid">
+    <div>
+      <h2>Learning in the open, honestly.</h2>
+      <p>I'm building toward a SOC Analyst and Ethical Hacker career from the ground up — computer engineering background, no formal degree completed, and no paid bootcamp. Everything on this page came from free resources: guided labs, CTF platforms, and self-directed study.</p>
+      <p>I keep this portfolio deliberately honest. If I haven't actually worked with a tool or fully understood a concept, it doesn't get listed here — I'd rather show fewer things I can explain than a long list I can't.</p>
+      <p>The mission behind all of it is close to home: a phishing incident that hit a family member is what pushed me toward cybersecurity in the first place, and it's why I spend as much time on community awareness as I do on technical labs.</p>
     </div>
-    <div class="border-t border-navylinesoft reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">ROLE</span><span class="text-ink text-right">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker</span>
-      </div>
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">FOCUS</span><span class="text-ink text-right">SOC Analysis (primary) / Penetration Testing (parallel)</span>
-      </div>
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">BASED IN</span><span class="text-ink text-right">Sugbongcogon, Misamis Oriental, PH</span>
-      </div>
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">BACKGROUND</span><span class="text-ink text-right">Computer Engineering (incomplete)</span>
-      </div>
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">APPROACH</span><span class="text-ink text-right">Free resources only — labs, CTFs, self-study</span>
-      </div>
-      <div class="flex justify-between gap-5 py-4 border-b border-navylinesoft font-mono text-[12.5px] hover:bg-navypanel hover:px-2.5 transition-all">
-        <span class="text-inkfaint">AFFILIATION</span><span class="text-ink text-right">OwlSec — community member</span>
-      </div>
+    <div class="fact-list">
+      <div class="fact"><span class="k">ROLE</span><span class="v">Junior Cybersecurity Analyst &amp; Aspiring Ethical Hacker</span></div>
+      <div class="fact"><span class="k">FOCUS</span><span class="v">SOC Analysis (primary) / Penetration Testing (parallel)</span></div>
+      <div class="fact"><span class="k">BASED IN</span><span class="v">Philippines</span></div>
+      <div class="fact"><span class="k">BACKGROUND</span><span class="v">Computer Engineering (incomplete)</span></div>
+      <div class="fact"><span class="k">APPROACH</span><span class="v">Free resources only — labs, CTFs, self-study</span></div>
+      <div class="fact"><span class="k">AFFILIATION</span><span class="v">OwlSec — community member</span></div>
     </div>
   </div>
 </section>
 
-<!-- SKILLS -->
-<section id="skills" class="relative z-10 px-6 md:px-[6vw] py-24 border-b border-navylinesoft">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// Skills &amp; Training</span>
-  <h2 class="font-bold text-2xl md:text-3xl mb-3.5 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">What I've actually put hands on</h2>
-  <p class="text-inkdim max-w-xl mb-12 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Represented at the level I can defend in an interview — not a wishlist.</p>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">HANDS-ON LABS</span>
-      <h3 class="text-base font-semibold mb-2.5">HackTheBox</h3>
-      <p class="text-inkdim text-sm">Cleared the Tier 0 Starting Point machines (Meow, Fawn, Dancing — Telnet, FTP, SMB) and am currently working through Connected.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">SOC PATH</span>
-      <h3 class="text-base font-semibold mb-2.5">TryHackMe</h3>
-      <p class="text-inkdim text-sm">Completed SOC-track exercises including phishing true-positive identification — separating real threats from noise.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">FOUNDATIONS</span>
-      <h3 class="text-base font-semibold mb-2.5">Cisco NetAcad</h3>
-      <p class="text-inkdim text-sm">Completed the Cybersecurity Analyst course, plus Python Essentials — building toward Python-based security automation like port scanners and log analyzers.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">ENVIRONMENT</span>
-      <h3 class="text-base font-semibold mb-2.5">Linux &amp; Toolchain</h3>
-      <p class="text-inkdim text-sm">Runs Kali Linux and Parrot OS in VMs on a Windows 11 desktop, with a dedicated Linux laptop on the roadmap.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">ANALYSIS</span>
-      <h3 class="text-base font-semibold mb-2.5">Threat Intelligence</h3>
-      <p class="text-inkdim text-sm">Real-world IOC analysis using VirusTotal cross-vendor correlation, written up in formal reporting.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="block font-mono text-[11px] text-inkfaint tracking-wider mb-2.5">IN PROGRESS</span>
-      <h3 class="text-base font-semibold mb-2.5">Python for Security</h3>
-      <p class="text-inkdim text-sm">Learning Python with the explicit goal of writing my own automation tools, not just completing exercises.</p>
-    </div>
+<section id="skills">
+  <span class="eyebrow">// Skills &amp; Training</span>
+  <h2>What I've actually put hands on</h2>
+  <p class="lede">Represented at the level I can defend in an interview — not a wishlist.</p>
+  <div class="skill-grid">
+    <div class="skill-card"><span class="tag-label">HANDS-ON LABS</span><h3>HackTheBox</h3><p>Cleared the Tier 0 Starting Point machines (Meow, Fawn, Dancing — Telnet, FTP, SMB) and am currently working through Connected.</p></div>
+    <div class="skill-card"><span class="tag-label">SOC PATH</span><h3>TryHackMe</h3><p>Completed SOC-track exercises including phishing true-positive identification — separating real threats from noise.</p></div>
+    <div class="skill-card"><span class="tag-label">FOUNDATIONS</span><h3>Cisco NetAcad</h3><p>Completed the Cybersecurity Analyst course, plus Python Essentials — building toward Python-based security automation like port scanners and log analyzers.</p></div>
+    <div class="skill-card"><span class="tag-label">ENVIRONMENT</span><h3>Linux &amp; Toolchain</h3><p>Runs Kali Linux and Parrot OS in VMs on a Windows 11 desktop, with a dedicated Linux laptop on the roadmap.</p></div>
+    <div class="skill-card"><span class="tag-label">ANALYSIS</span><h3>Threat Intelligence</h3><p>Real-world IOC analysis using VirusTotal cross-vendor correlation, written up in formal reporting.</p></div>
+    <div class="skill-card"><span class="tag-label">IN PROGRESS</span><h3>Python for Security</h3><p>Learning Python with the explicit goal of writing my own automation tools, not just completing exercises.</p></div>
   </div>
-
-  <p class="mt-7 font-mono text-xs text-inkfaint border-l-2 border-navyline pl-3.5 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">
-    Certifications (CompTIA and similar) are on the radar but not yet planned in detail — this section will update honestly as that changes.
-  </p>
+  <p class="note">Certifications (CompTIA and similar) are on the radar but not yet planned in detail — this section will update honestly as that changes.</p>
 </section>
 
-<!-- PROJECTS -->
-<section id="projects" class="relative z-10 px-6 md:px-[6vw] py-24 border-b border-navylinesoft">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// Projects</span>
-  <h2 class="font-bold text-2xl md:text-3xl mb-3.5 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Real work, real state</h2>
-  <p class="text-inkdim max-w-xl mb-12 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Status is shown as-is, including what's currently broken.</p>
+<section id="projects">
+  <span class="eyebrow">// Projects</span>
+  <h2>Real work, real state</h2>
+  <p class="lede">Status is shown as-is, including what's currently broken.</p>
 
-  <div class="project reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-3 sm:gap-7 py-7 border-b border-navylinesoft rounded-md cursor-pointer hover:bg-navypanel hover:px-4 transition-all" tabindex="0" role="button" aria-expanded="false">
-    <span class="font-mono text-xs text-inkfaint">P-01</span>
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-01</span>
     <div>
-      <h3 class="text-lg font-semibold mb-2 flex items-center gap-2.5"><span class="chev font-mono text-silver text-sm inline-block transition-transform">▸</span> Threat Intelligence Report — TIR-2026-001</h3>
-      <p class="text-inkdim text-sm max-w-xl">Formal analysis of a compromised Filipino Facebook account being used to spread gambling scam URLs, including IOC extraction and cross-vendor correlation via VirusTotal.</p>
-      <div class="flex gap-2 flex-wrap mt-3 font-mono text-[11px] text-inkfaint">
-        <span class="border border-navylinesoft rounded px-2 py-1">OSINT</span><span class="border border-navylinesoft rounded px-2 py-1">VirusTotal</span><span class="border border-navylinesoft rounded px-2 py-1">IOC Analysis</span>
-      </div>
-      <span class="inline-block mt-2.5 font-mono text-[10.5px] px-2.5 py-1 border border-navyline rounded text-inkdim">Documented &amp; complete</span>
-      <div class="more grid grid-rows-[0fr] transition-all duration-300 overflow-hidden font-mono text-[11.5px] text-inkfaint">
-        <div class="min-h-0 overflow-hidden border-l-2 border-navyline pl-3 mt-0">Report ID: TIR-2026-001 — filed as a standalone incident writeup, not a class exercise. Click to collapse.</div>
-      </div>
+      <h3><span class="chev">▸</span> Threat Intelligence Report — TIR-2026-001</h3>
+      <p>Formal analysis of a compromised Filipino Facebook account being used to spread gambling scam URLs, including IOC extraction and cross-vendor correlation via VirusTotal.</p>
+      <div class="stack"><span>OSINT</span><span>VirusTotal</span><span>IOC Analysis</span></div>
+      <span class="status">Documented &amp; complete</span>
+      <div class="more">Report ID: TIR-2026-001 — filed as a standalone incident writeup, not a class exercise. Click to collapse.</div>
     </div>
   </div>
 
-  <div class="project reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-3 sm:gap-7 py-7 border-b border-navylinesoft rounded-md cursor-pointer hover:bg-navypanel hover:px-4 transition-all" tabindex="0" role="button" aria-expanded="false">
-    <span class="font-mono text-xs text-inkfaint">P-02</span>
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-02</span>
     <div>
-      <h3 class="text-lg font-semibold mb-2 flex items-center gap-2.5"><span class="chev font-mono text-silver text-sm inline-block transition-transform">▸</span> AI-Powered Phishing Email Analyzer</h3>
-      <p class="text-inkdim text-sm max-w-xl">A web app that analyzes submitted emails for phishing indicators using the Claude API. Currently blocked by a CORS restriction — a serverless proxy fix is written and ready, pending API credits to deploy.</p>
-      <div class="flex gap-2 flex-wrap mt-3 font-mono text-[11px] text-inkfaint">
-        <span class="border border-navylinesoft rounded px-2 py-1">React</span><span class="border border-navylinesoft rounded px-2 py-1">Vite</span><span class="border border-navylinesoft rounded px-2 py-1">Claude API</span>
-      </div>
-      <span class="inline-block mt-2.5 font-mono text-[10.5px] px-2.5 py-1 border border-navyline rounded text-inkdim">In progress — fix pending</span>
-      <div class="more grid grid-rows-[0fr] transition-all duration-300 overflow-hidden font-mono text-[11.5px] text-inkfaint">
-        <div class="min-h-0 overflow-hidden border-l-2 border-navyline pl-3 mt-0">Hosted on Vercel/GitHub under AzureKodo-alt. The serverless proxy is written — it's waiting on API credits, not code.</div>
-      </div>
+      <h3><span class="chev">▸</span> AI-Powered Phishing Email Analyzer</h3>
+      <p>A web app that analyzes submitted emails for phishing indicators using the Claude API. Currently blocked by a CORS restriction — a serverless proxy fix is written and ready, pending API credits to deploy.</p>
+      <div class="stack"><span>React</span><span>Vite</span><span>Claude API</span></div>
+      <span class="status">In progress — fix pending</span>
+      <div class="more">Hosted on Vercel/GitHub under AzureKodo-alt. The serverless proxy is written — it's waiting on API credits, not code.</div>
     </div>
   </div>
 
-  <div class="project reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-3 sm:gap-7 py-7 rounded-md cursor-pointer hover:bg-navypanel hover:px-4 transition-all" tabindex="0" role="button" aria-expanded="false">
-    <span class="font-mono text-xs text-inkfaint">P-03</span>
+  <div class="project" tabindex="0" role="button" aria-expanded="false">
+    <span class="pid">P-03</span>
     <div>
-      <h3 class="text-lg font-semibold mb-2 flex items-center gap-2.5"><span class="chev font-mono text-silver text-sm inline-block transition-transform">▸</span> Community Awareness Writing</h3>
-      <p class="text-inkdim text-sm max-w-xl">Ongoing posts on phishing, deepfakes, and AI overhype for a local Facebook audience, written in English, Bisaya-English, and Taglish to actually reach the people they're meant to protect.</p>
-      <div class="flex gap-2 flex-wrap mt-3 font-mono text-[11px] text-inkfaint">
-        <span class="border border-navylinesoft rounded px-2 py-1">Public Writing</span><span class="border border-navylinesoft rounded px-2 py-1">Local Outreach</span>
-      </div>
-      <span class="inline-block mt-2.5 font-mono text-[10.5px] px-2.5 py-1 border border-navyline rounded text-inkdim">Ongoing</span>
-      <div class="more grid grid-rows-[0fr] transition-all duration-300 overflow-hidden font-mono text-[11.5px] text-inkfaint">
-        <div class="min-h-0 overflow-hidden border-l-2 border-navyline pl-3 mt-0">Written to reach the audience directly — code-switching is deliberate, not an afterthought.</div>
-      </div>
+      <h3><span class="chev">▸</span> Community Awareness Writing</h3>
+      <p>Ongoing posts on phishing, deepfakes, and AI overhype for a local Facebook audience, written in English, Bisaya-English, and Taglish to actually reach the people they're meant to protect.</p>
+      <div class="stack"><span>Public Writing</span><span>Local Outreach</span></div>
+      <span class="status">Ongoing</span>
+      <div class="more">Written to reach the audience directly — code-switching is deliberate, not an afterthought.</div>
     </div>
   </div>
 </section>
 
-<!-- PHISHING ANALYZER DEMO -->
-<section id="demo" class="relative z-10 px-6 md:px-[6vw] py-24 border-b border-navylinesoft">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// Live Demo</span>
-  <span class="inline-block font-mono text-[10.5px] tracking-wider text-silver border border-navyline rounded-full px-3 py-1 mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">SOC ANALYST TOOLKIT</span>
-  <h2 class="font-bold text-2xl md:text-3xl mb-3.5 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Phishing Analyzer — client-side preview</h2>
-  <p class="text-inkdim max-w-xl mb-12 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">The full version runs on the Claude API and is currently blocked by CORS (see P-02 above). This preview runs entirely in your browser using a simple keyword/pattern heuristic — no data leaves this page, and no API is called.</p>
+<section id="demo">
+  <span class="eyebrow">// Live Demo</span>
+  <span class="demo-badge">SOC ANALYST TOOLKIT</span>
+  <h2>Phishing Analyzer — client-side preview</h2>
+  <p class="lede">The full version runs on the Claude API and is currently blocked by CORS (see P-02 above). This preview runs entirely in your browser using a simple keyword/pattern heuristic — no data leaves this page, and no API is called.</p>
 
-  <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-lg overflow-hidden max-w-3xl">
-    <div class="flex border-b border-navylinesoft">
-      <button id="tabInput" class="demo-tab flex-1 text-center py-4 font-mono text-[12.5px] tracking-wide text-silver border-b-2 border-silver transition">Email Input</button>
-      <button id="tabReport" class="demo-tab flex-1 text-center py-4 font-mono text-[12.5px] tracking-wide text-inkfaint border-b-2 border-transparent hover:text-inkdim transition">Analysis Report</button>
+  <div class="demo-panel">
+    <div class="demo-tabs">
+      <button class="demo-tab active" id="tabInput">Email Input</button>
+      <button class="demo-tab" id="tabReport">Analysis Report</button>
     </div>
-    <div class="p-6 md:p-7">
-      <div id="viewInput" class="demo-view">
-        <div class="flex justify-between items-center mb-3.5 font-mono text-[11.5px] text-inkfaint tracking-wide">
+    <div class="demo-body">
+      <div class="demo-view active" id="viewInput">
+        <div class="demo-row">
           <span>PASTE EMAIL CONTENT / HEADERS</span>
-          <button id="loadSample" class="font-mono text-[11px] px-3.5 py-1.5 border border-navyline rounded text-inkdim hover:border-silver hover:text-silver transition">Load Sample</button>
+          <button class="demo-sample-btn" id="loadSample">Load Sample</button>
         </div>
-        <textarea id="emailInput" placeholder="Paste raw email content here...&#10;&#10;Include headers for best results:&#10;From: sender@domain.com&#10;Subject: ...&#10;Body content..."
-          class="w-full min-h-[200px] bg-navybg border border-navylinesoft rounded-md p-4 text-inkdim font-mono text-[12.5px] leading-7 resize-y focus:outline-none focus:border-silver transition"></textarea>
-        <button id="runAnalysis" class="w-full mt-4.5 py-4 font-mono text-[12.5px] tracking-wide bg-navylinesoft border border-navyline rounded-md text-inkdim hover:border-silver hover:text-silver hover:bg-navypanel transition">▸ Run Threat Analysis</button>
+        <textarea id="emailInput" placeholder="Paste raw email content here...&#10;&#10;Include headers for best results:&#10;From: sender@domain.com&#10;Subject: ...&#10;Body content..."></textarea>
+        <button class="run-btn" id="runAnalysis">▸ Run Threat Analysis</button>
       </div>
-      <div id="viewReport" class="demo-view hidden">
-        <div id="reportEmpty" class="text-center py-12 px-5 text-inkfaint font-mono text-xs">No analysis run yet. Paste an email and click "Run Threat Analysis."</div>
-        <div id="reportResults" class="hidden">
-          <div class="flex items-center gap-4 mb-6 p-4 bg-navybg border border-navylinesoft rounded-md">
-            <div id="riskScore" class="font-mono font-bold text-3xl text-silver">0%</div>
-            <div id="riskLabel" class="font-mono text-xs text-inkfaint tracking-wide">RISK LEVEL</div>
+      <div class="demo-view" id="viewReport">
+        <div id="reportEmpty" class="demo-empty">No analysis run yet. Paste an email and click "Run Threat Analysis."</div>
+        <div id="reportResults" style="display:none;">
+          <div class="risk-meter">
+            <div class="risk-score" id="riskScore">0%</div>
+            <div>
+              <div class="risk-label" id="riskLabel">RISK LEVEL</div>
+            </div>
           </div>
           <div id="findingsList"></div>
-          <div class="mt-5 pt-4 border-t border-dashed border-navylinesoft font-mono text-[10.5px] text-inkfaint leading-7">Heuristic demo only — flags common phishing patterns (urgency language, mismatched links, credential requests, generic greetings). Not a substitute for the full AI-powered analyzer.</div>
+          <div class="demo-footnote">Heuristic demo only — flags common phishing patterns (urgency language, mismatched links, credential requests, generic greetings). Not a substitute for the full AI-powered analyzer.</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- COMMUNITY -->
-<section id="community" class="relative z-10 px-6 md:px-[6vw] py-24 border-b border-navylinesoft">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// Community</span>
-  <h2 class="font-bold text-2xl md:text-3xl mb-3.5 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Defense doesn't stop at the screen</h2>
-  <p class="text-inkdim max-w-xl mb-12 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">Awareness work rooted in the same incident that started this path.</p>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5">
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="inline-flex items-center gap-2 font-mono text-[11px] text-silver border border-navyline rounded-full px-2.5 py-1 mb-3.5"><span class="w-1.5 h-1.5 rounded-full bg-silver"></span>Member</span>
-      <h3 class="text-base font-semibold mb-2">OwlSec</h3>
-      <p class="text-inkdim text-sm">Active member of the OwlSec community, engaging on cybersecurity topics alongside other learners and practitioners.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="inline-flex items-center gap-2 font-mono text-[11px] text-silver border border-navyline rounded-full px-2.5 py-1 mb-3.5"><span class="w-1.5 h-1.5 rounded-full bg-silver"></span>Following</span>
-      <h3 class="text-base font-semibold mb-2">Deep Web Konek (DWK)</h3>
-      <p class="text-inkdim text-sm">Follows DWK for grounded, Filipino-context cybersecurity discussion.</p>
-    </div>
-    <div class="reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0 bg-navypanel border border-navylinesoft rounded-md p-6 hover:border-silver hover:-translate-y-1 transition-all">
-      <span class="inline-flex items-center gap-2 font-mono text-[11px] text-silver border border-navyline rounded-full px-2.5 py-1 mb-3.5"><span class="w-1.5 h-1.5 rounded-full bg-silver"></span>Track record</span>
-      <h3 class="text-base font-semibold mb-2">Caught it before it spread</h3>
-      <p class="text-inkdim text-sm">Independently flagged phishing scams and a Ponzi scheme in his own social circle, and correctly categorized an impersonation case as spear phishing.</p>
-    </div>
+<section id="community">
+  <span class="eyebrow">// Community</span>
+  <h2>Defense doesn't stop at the screen</h2>
+  <p class="lede">Awareness work rooted in the same incident that started this path.</p>
+  <div class="community-grid">
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Member</span><h3>OwlSec</h3><p>Active member of the OwlSec community, engaging on cybersecurity topics alongside other learners and practitioners.</p></div>
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Following</span><h3>Deep Web Konek (DWK)</h3><p>Follows DWK for grounded, Filipino-context cybersecurity discussion.</p></div>
+    <div class="comm-card"><span class="badge"><span class="dot"></span>Track record</span><h3>Caught it before it spread</h3><p>Independently flagged phishing scams and a Ponzi scheme in his own social circle, and correctly categorized an impersonation case as spear phishing.</p></div>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact" class="relative z-10 px-6 md:px-[6vw] py-24">
-  <span class="block font-mono text-[11.5px] text-inkfaint tracking-widest uppercase mb-4 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">// Contact</span>
-  <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-7 reveal-item opacity-0 translate-y-7 transition-all duration-700 motion-reduce:opacity-100 motion-reduce:translate-y-0">
+<section id="contact">
+  <span class="eyebrow">// Contact</span>
+  <div class="contact-wrap">
     <div>
-      <h2 class="font-bold text-2xl mb-2.5">Let's talk.</h2>
-      <button id="emailBtn" data-email="azurekodo4@gmail.com" class="inline-flex items-center gap-3 bg-transparent border-0 font-mono text-lg md:text-xl text-ink border-b border-navyline pb-1.5 hover:border-silver hover:text-silver transition cursor-pointer">
+      <h2 style="margin-bottom:10px;">Let's talk.</h2>
+      <button class="email-btn" id="emailBtn" data-email="azurekodo4@gmail.com">
         azurekodo4@gmail.com
-        <span id="copyHint" class="text-[11px] text-inkfaint border border-navyline rounded-full px-2.5 py-1 transition">click to copy</span>
+        <span class="copy-hint" id="copyHint">click to copy</span>
       </button>
     </div>
-    <div class="flex gap-5 font-mono text-[12.5px]">
-      <a href="https://github.com/AzureKodo-alt" target="_blank" rel="noopener" class="text-inkdim border-b border-transparent hover:text-silver hover:border-silver transition">GitHub</a>
-      <a href="#" class="text-inkdim border-b border-transparent hover:text-silver hover:border-silver transition">LinkedIn</a>
-      <a href="https://discord.gg/TT3jpMsp2" target="_blank" rel="noopener" class="text-inkdim border-b border-transparent hover:text-silver hover:border-silver transition">OwlSec Discord</a>
+    <div class="socials">
+      <a href="https://github.com/AzureKodo-alt" target="_blank" rel="noopener">GitHub</a>
+      <a href="#">LinkedIn</a>
+      <a href="https://discord.gg/TT3jpMsp2" target="_blank" rel="noopener">OwlSec Discord</a>
     </div>
   </div>
 </section>
 
-<footer class="relative z-10 px-6 md:px-[6vw] py-8 font-mono text-[11.5px] text-inkfaint flex flex-wrap justify-between gap-2.5 border-t border-navylinesoft">
+<footer>
   <span>AzureKodo — built and maintained by hand</span>
   <span id="year"></span>
 </footer>
@@ -339,74 +405,55 @@
   "use strict";
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  /* mobile nav toggle */
   var toggle = document.getElementById('navToggle');
-  var mobileLinks = document.getElementById('navLinksMobile');
+  var links = document.getElementById('navLinks');
   toggle.addEventListener('click', function(){
-    var open = mobileLinks.classList.toggle('hidden');
-    mobileLinks.classList.toggle('flex');
-    toggle.setAttribute('aria-expanded', mobileLinks.classList.contains('flex') ? 'true' : 'false');
+    var open = links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
-  document.querySelectorAll('.mnav-link').forEach(function(a){
+  links.querySelectorAll('a').forEach(function(a){
     a.addEventListener('click', function(){
-      mobileLinks.classList.add('hidden');
-      mobileLinks.classList.remove('flex');
+      links.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
     });
   });
 
-  /* scroll-spy + nav shrink */
-  var navEl = document.getElementById('mainNav');
+  var navEl = document.querySelector('nav');
   var sections = document.querySelectorAll('section[id]');
   function onScroll(){
     var pos = window.scrollY + 140;
     sections.forEach(function(sec){
       var top = sec.offsetTop, bottom = top + sec.offsetHeight;
-      var link = document.querySelector('.nav-link[href="#'+sec.id+'"]');
+      var link = document.querySelector('.nav-links a[href="#'+sec.id+'"]');
       if(link){
-        if(pos >= top && pos < bottom){ link.classList.add('text-silver','border-silver'); }
-        else { link.classList.remove('text-silver','border-silver'); }
+        if(pos >= top && pos < bottom){ link.classList.add('active'); }
+        else { link.classList.remove('active'); }
       }
     });
-    if(window.scrollY > 30){
-      navEl.classList.remove('py-5'); navEl.classList.add('py-3','shadow-xl','bg-navybg/95');
-    } else {
-      navEl.classList.add('py-5'); navEl.classList.remove('py-3','shadow-xl','bg-navybg/95');
-    }
+    if(window.scrollY > 30){ navEl.classList.add('scrolled'); }
+    else { navEl.classList.remove('scrolled'); }
   }
   window.addEventListener('scroll', onScroll);
   onScroll();
 
-  /* scroll-triggered reveal — pure Tailwind: remove opacity-0/translate-y-7 on intersect */
-  var revealTargets = document.querySelectorAll('.reveal-item');
+  var revealTargets = document.querySelectorAll('h2, .lede, .fact, .skill-card, .project, .comm-card, .note, .about-grid > div, .demo-panel');
   if('IntersectionObserver' in window){
+    revealTargets.forEach(function(el){ el.classList.add('reveal','pending'); });
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if(entry.isIntersecting){
-          entry.target.classList.remove('opacity-0','translate-y-7');
+          entry.target.classList.remove('pending');
           io.unobserve(entry.target);
         }
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
     revealTargets.forEach(function(el){ io.observe(el); });
-  } else {
-    revealTargets.forEach(function(el){ el.classList.remove('opacity-0','translate-y-7'); });
   }
 
-  /* expandable project rows */
   document.querySelectorAll('.project').forEach(function(p){
-    var chev = p.querySelector('.chev');
-    var more = p.querySelector('.more');
     function toggleProject(){
-      var open = p.getAttribute('aria-expanded') === 'true';
-      p.setAttribute('aria-expanded', open ? 'false' : 'true');
-      if(open){
-        chev.classList.remove('rotate-90');
-        more.classList.remove('grid-rows-[1fr]'); more.classList.add('grid-rows-[0fr]');
-      } else {
-        chev.classList.add('rotate-90');
-        more.classList.add('grid-rows-[1fr]'); more.classList.remove('grid-rows-[0fr]');
-      }
+      var open = p.classList.toggle('open');
+      p.setAttribute('aria-expanded', open ? 'true' : 'false');
     }
     p.addEventListener('click', toggleProject);
     p.addEventListener('keydown', function(e){
@@ -414,22 +461,23 @@
     });
   });
 
-  /* copy email to clipboard */
   var emailBtn = document.getElementById('emailBtn');
   var copyHint = document.getElementById('copyHint');
   emailBtn.addEventListener('click', function(){
     var email = emailBtn.getAttribute('data-email');
     function done(){
       copyHint.textContent = 'copied!';
-      copyHint.classList.add('text-silver','border-silver');
+      emailBtn.classList.add('copied');
       setTimeout(function(){
         copyHint.textContent = 'click to copy';
-        copyHint.classList.remove('text-silver','border-silver');
+        emailBtn.classList.remove('copied');
       }, 1800);
     }
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(email).then(done).catch(done);
-    } else { done(); }
+    } else {
+      done();
+    }
   });
 
   /* Phishing Analyzer demo */
@@ -439,16 +487,10 @@
   var viewReport = document.getElementById('viewReport');
   function showTab(which){
     var toInput = which === 'input';
-    tabInput.classList.toggle('text-silver', toInput);
-    tabInput.classList.toggle('border-silver', toInput);
-    tabInput.classList.toggle('text-inkfaint', !toInput);
-    tabInput.classList.toggle('border-transparent', !toInput);
-    tabReport.classList.toggle('text-silver', !toInput);
-    tabReport.classList.toggle('border-silver', !toInput);
-    tabReport.classList.toggle('text-inkfaint', toInput);
-    tabReport.classList.toggle('border-transparent', toInput);
-    viewInput.classList.toggle('hidden', !toInput);
-    viewReport.classList.toggle('hidden', toInput);
+    tabInput.classList.toggle('active', toInput);
+    tabReport.classList.toggle('active', !toInput);
+    viewInput.classList.toggle('active', toInput);
+    viewReport.classList.toggle('active', !toInput);
   }
   tabInput.addEventListener('click', function(){ showTab('input'); });
   tabReport.addEventListener('click', function(){ showTab('report'); });
@@ -483,8 +525,8 @@
 
     if(!text.trim()){
       showTab('report');
-      reportEmpty.classList.remove('hidden');
-      reportResults.classList.add('hidden');
+      reportEmpty.style.display = 'block';
+      reportResults.style.display = 'none';
       reportEmpty.textContent = 'Paste some email content first, then run the analysis.';
       return;
     }
@@ -492,20 +534,20 @@
     var hits = checks.filter(function(c){ return c.test.test(text); });
     var score = Math.min(100, hits.length * 17);
 
-    reportEmpty.classList.add('hidden');
-    reportResults.classList.remove('hidden');
+    reportEmpty.style.display = 'none';
+    reportResults.style.display = 'block';
 
     document.getElementById('riskScore').textContent = score + '%';
     var label = score >= 60 ? 'HIGH RISK — likely phishing' : score >= 25 ? 'MODERATE RISK — review carefully' : 'LOW RISK — no strong indicators found';
     document.getElementById('riskLabel').textContent = label;
 
     if(hits.length === 0){
-      findingsList.innerHTML = '<div class="flex gap-3 py-3 border-b border-navylinesoft font-mono text-xs"><span class="text-silver shrink-0">—</span><span class="text-inkdim">No common phishing patterns detected by this heuristic. Still exercise normal caution.</span></div>';
+      findingsList.innerHTML = '<div class="finding"><span class="flag">—</span><span class="desc">No common phishing patterns detected by this heuristic. Still exercise normal caution.</span></div>';
     } else {
       hits.forEach(function(h){
         var row = document.createElement('div');
-        row.className = 'flex gap-3 py-3 border-b border-navylinesoft font-mono text-xs last:border-b-0';
-        row.innerHTML = '<span class="text-silver shrink-0">[' + h.flag + ']</span><span class="text-inkdim">' + h.desc + '</span>';
+        row.className = 'finding';
+        row.innerHTML = '<span class="flag">[' + h.flag + ']</span><span class="desc">' + h.desc + '</span>';
         findingsList.appendChild(row);
       });
     }
